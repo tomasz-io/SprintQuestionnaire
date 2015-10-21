@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "NUMA": {
+      "applicationId": "XYVa8aop9gJj7A7GC4Rl5KELXIJCOD2dceWu1QhP"
+    },
+    "_default": {
+      "link": "NUMA"
+    }
+  }
+}
