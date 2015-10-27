@@ -145,6 +145,39 @@ Parse.Cloud.define("emailCheck", function(request, response) {
 
 });
 
+Parse.Cloud.define("getAssignments", function(request, response) {
+
+  console.log("getting assignments");
+
+  var Assignments = Parse.Object.extend("Assignments");
+  var query = new Parse.Query(Assignments);
+
+  query.equalTo("assigned", false);
+
+  var arr = [];
+
+  query.each(function(assignment){
+
+    var id = assignment.id;
+    var email = assignment.get("email");
+    var startups = assignment.get("startupNames");
+
+    arr.push({
+    "Id" : id,
+    "Email" : email,
+    "Startups" : startups.toString().split(",").join(" , ")
+    });
+
+  }).then(function(results){
+    console.log("assignments : " + arr);
+    response.success(arr);
+  }, function(error) {
+    response.error(error.code + " : " + error.message);
+  });
+
+});
+
+
 Parse.Cloud.define("getStartups", function(request, response) {
 
   var Startups = Parse.Object.extend("Startups");
@@ -198,15 +231,10 @@ Parse.Cloud.define("getStartups", function(request, response) {
     var fitScore = getFitScore(startupTags, evaluatorTags);
 
 
-    if(!checkIfEmailInString(biz)) {
-      biz = 0;
-    }
-    if(!checkIfEmailInString(product)) {
-      product = 0;
-    }
-    if(!checkIfEmailInString(tech)) {
-      tech = 0;
-    }
+//javascript ternary operator
+     biz = (biz) ? 'has business evaluator' : 0;
+     product = (product) ? 'has product evaluator' : 0;
+     tech = (tech) ? 'has tech evaluator' : 0;
 
     arr.push({
     "Id" : id,
@@ -271,6 +299,7 @@ Parse.Cloud.define("submit", function(request, response) {
       var id = startup.id;
       name = startup.get("Name");
 
+//Check if it's a biz, product or tech evaluator
       if(isInArray(id, biz)){
         startup.set("Biz", evaluator);  //pointer
       } else if(isInArray(id, product)){
@@ -290,16 +319,37 @@ Parse.Cloud.define("submit", function(request, response) {
     //Create new assignment
     var Assignments = Parse.Object.extend("Assignments");
     var assignment = new Assignments();
-
     assignment.set("evaluator", evaluator); //pointer
     assignment.set("startupNames", allNames); //array
     assignment.set("email", email); //string
+    assignment.set("assigned", false);
 
     return assignment.save();
   }).then(function(result) {
       response.success("submit success");
   }, function(error) {
       response.error("submit something went wrong.");
+  });
+
+});
+
+Parse.Cloud.define("submitAssignments", function(request, response) {
+
+  var Assignments = Parse.Object.extend("Assignments");
+  var assignments = request.params.assignments;
+  console.log("assignments : " + assignments);
+
+  var query = new Parse.Query(Assignments);
+  query.containedIn("objectId", assignments);
+
+  query.each(function(assignment) {
+    assignment.set("assigned", true);
+    return assignment.save();
+  }).then(function(result) {
+      response.success("submit success");
+  }, function(error) {
+      console.error("Error submitAssignments " + error.code + ": " + error.message);
+      response.error("submitAssignments something went wrong.");
   });
 
 });
