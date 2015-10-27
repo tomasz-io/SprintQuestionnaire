@@ -2,33 +2,6 @@
 // Use Parse.Cloud.define to define as many cloud functions as you want.
 // For example:
 
-var mandrill = require("mandrill");
-mandrill.initialize("yEPF9THiZOmKolJaiNMPog");
-
-var myMandrillFunction = function(email) {
-  mandrill.sendEmail({
-    message: {
-      text: "Hello World!",
-      subject: "Using Cloud Code and Mandrill is great!",
-      from_email: "tomasz.s@numa.co",
-      from_name: "Cloud Code",
-      to: [
-        {
-          email: email,
-          name: "Your Name"
-        }
-      ]
-    },
-    async: true
-  });
-
-
-  /*, {
-    success: function(httpResponse) { response.success("Email sent!"); },
-    error: function(httpResponse) { response.error("Uh oh, something went wrong"); }
-  });*/
-}
-
 var separateTags = function(string) {
   //this returns an array of words that were previously separated by commas
   var arr = string.split(",");
@@ -37,6 +10,10 @@ var separateTags = function(string) {
     arr[i] = [arr[i].trim().toLowerCase()]; //remove leading and trailing whitespace
   }
   return arr
+}
+
+var isInArray = function(value, array) {
+  return array.indexOf(value) > -1;
 }
 
 var compareScores = function(a,b) {
@@ -257,45 +234,118 @@ Parse.Cloud.define("getStartups", function(request, response) {
 Parse.Cloud.define("submit", function(request, response) {
 
   var Startups = Parse.Object.extend("Startups");
+  var Evaluators = Parse.Object.extend("Evaluators");
 
   var email = request.params.email;
 
   var biz = request.params.biz;
   var product = request.params.product;
   var tech = request.params.tech;
+  var allChoices = biz.concat(product, tech);
+  var allNames = [];
+  var evaluator;
 
   console.log("biz : " + biz);
   console.log("prod : " + product);
   console.log("tech : " + tech);
   console.log("email : " + email);
 
-  var bizQuery = new Parse.Query(Startups);
-  var productQuery = new Parse.Query(Startups);
-  var techQuery = new Parse.Query(Startups);
+  var evaluatorQuery = new Parse.Query(Evaluators);
+  evaluatorQuery.equalTo("Email", email);
 
-  bizQuery.containedIn("objectId", biz);
-  productQuery.containedIn("objectId", product);
-  techQuery.containedIn("objectId", tech);
+  evaluatorQuery.find().then(function(results){
 
-  bizQuery.each(function(startup){
-    var name = startup.get("Name");
-    console.log("name : " + name);
-    startup.set("Biz", email);
-    startup.save();
+    if ( results.length == 0 ) {
+      console.error("no such evaluator");
+    } else if (results.length > 0) {
+      evaluator = results[0];
+    }
+
+    var query = new Parse.Query(Startups);
+    query.containedIn("objectId", allChoices);
+    return query.find();
+  }).then(function(results){
+
+    for(var i=0, len=results.length; i < len; i++){
+      var startup = results[i];
+      var id = startup.id;
+      name = startup.get("Name");
+
+      if(isInArray(id, biz)){
+        startup.set("Biz", evaluator);  //pointer
+      } else if(isInArray(id, product)){
+        startup.set("Product", evaluator); //pointer
+      }else if(isInArray(id, tech)){
+        startup.set("Tech", evaluator);  //pointer
+      } else {
+        console.error("startup is in none of the arrays");
+      }
+      startup.save();
+      allNames.push(name);
+    }
+
+  }).then(function(){
+
+    console.log("allNames: " + allNames);
+    //Create new assignment
+    var Assignments = Parse.Object.extend("Assignments");
+    var assignment = new Assignments();
+
+    assignment.set("evaluator", evaluator); //pointer
+    assignment.set("startupNames", allNames); //array
+    assignment.set("email", email); //string
+
+    return assignment.save();
+  }).then(function(result) {
+      response.success("submit success");
+  }, function(error) {
+      response.error("submit something went wrong.");
   });
-
-  productQuery.each(function(startup){
-    //var name = startup.get("Name");
-    startup.set("Product", email);
-    startup.save();
-  });
-
-  techQuery.each(function(startup){
-    //var name = startup.get("Name");
-    startup.set("Tech", email);
-    startup.save();
-  });
-
-  //myMandrillFunction(email);
 
 });
+
+
+// Parse.Cloud.define("submit", function(request, response) {
+//
+//   var Startups = Parse.Object.extend("Startups");
+//
+//   var email = request.params.email;
+//
+//   var biz = request.params.biz;
+//   var product = request.params.product;
+//   var tech = request.params.tech;
+//
+//   console.log("biz : " + biz);
+//   console.log("prod : " + product);
+//   console.log("tech : " + tech);
+//   console.log("email : " + email);
+//
+//   var bizQuery = new Parse.Query(Startups);
+//   var productQuery = new Parse.Query(Startups);
+//   var techQuery = new Parse.Query(Startups);
+//
+//   bizQuery.containedIn("objectId", biz);
+//   productQuery.containedIn("objectId", product);
+//   techQuery.containedIn("objectId", tech);
+//
+//
+//   bizQuery.each(function(startup){
+//     var name = startup.get("Name");
+//     console.log("name : " + name);
+//     startup.set("Biz", email);
+//     startup.save();
+//   });
+//
+//   productQuery.each(function(startup){
+//     //var name = startup.get("Name");
+//     startup.set("Product", email);
+//     startup.save();
+//   });
+//
+//   techQuery.each(function(startup){
+//     //var name = startup.get("Name");
+//     startup.set("Tech", email);
+//     startup.save();
+//   });
+//
+// });
