@@ -1,6 +1,7 @@
 
 // Use Parse.Cloud.define to define as many cloud functions as you want.
 // For example:
+var moment = require('moment');
 
 var separateTags = function(string) {
   //this returns an array of words that were previously separated by commas
@@ -21,6 +22,14 @@ var compareScores = function(a,b) {
     return 1;
   if (a.FitScore > b.FitScore)
     return -1;
+  return 0;
+}
+
+var compareDates = function(a,b) {
+  if (a.UpdatedAt < b.UpdatedAt)
+    return -1;
+  if (a.UpdatedAt > b.UpdatedAt)
+    return 1;
   return 0;
 }
 
@@ -152,7 +161,7 @@ Parse.Cloud.define("getAssignments", function(request, response) {
   var Assignments = Parse.Object.extend("Assignments");
   var query = new Parse.Query(Assignments);
 
-  query.equalTo("assigned", false);
+  //query.equalTo("assigned", false);
 
   var arr = [];
 
@@ -161,15 +170,28 @@ Parse.Cloud.define("getAssignments", function(request, response) {
     var id = assignment.id;
     var email = assignment.get("email");
     var startups = assignment.get("startupNames");
+    var assigned = assignment.get("assigned");
+    var updatedAt = assignment.updatedAt;
+
+    var date = moment(updatedAt);
+    prettyDate = date.format("DD/MM/YYYY, h:mm a"); // "Sunday, February 14th 2010, 3:25:50 pm"
+    //a.format("ddd, hA");                       // "Sun, 3PM"
+
+    console.log(prettyDate);
 
     arr.push({
     "Id" : id,
     "Email" : email,
-    "Startups" : startups.toString().split(",").join(" , ")
+    "Startups" : startups.toString().split(",").join(", "), //this is formatting. Transforming array to string and replacing all "," with ", "
+    "Assigned" : assigned,
+    "UpdatedAt" : updatedAt,
+    "PrettyDate" : prettyDate
     });
+    console.log("assigned : " + assigned);
 
   }).then(function(results){
     console.log("assignments : " + arr);
+    arr = arr.sort(compareDates);
     response.success(arr);
   }, function(error) {
     response.error(error.code + " : " + error.message);
@@ -184,18 +206,15 @@ Parse.Cloud.define("getStartups", function(request, response) {
 
   //Startups that need Business evaluator
   var needsBiz = new Parse.Query(Startups);
-  needsBiz.doesNotExist("Biz");
-  //needsBiz.equalTo("Biz", "test");
+  needsBiz.doesNotExist("biz");
 
   //Startups that need Product evaluator
   var needsProduct = new Parse.Query(Startups);
-  needsProduct.doesNotExist("Product");
-  //needsProduct.equalTo("Product", "test");
+  needsProduct.doesNotExist("product");
 
   //Startups that need Tech evaluator
   var needsTech = new Parse.Query(Startups);
-  needsTech.doesNotExist("Tech");
-  //needsTech.equalTo("Tech", "test");
+  needsTech.doesNotExist("tech");
 
 
   //Main query
@@ -217,11 +236,12 @@ Parse.Cloud.define("getStartups", function(request, response) {
   mainQuery.each(function(startup){
 
     var id = startup.id;
-    var name = startup.get("Name");
-    var biz = startup.get("Biz");
-    var product = startup.get("Product");
-    var tech = startup.get("Tech");
-    var startupTags = startup.get("Tags");
+    var name = startup.get("name");
+    var biz = startup.get("biz");
+    var product = startup.get("product");
+    var tech = startup.get("tech");
+    var tagline = startup.get("tagline");
+    var startupTags = startup.get("tags");
 
     if(startupTags == null) {
       startupTags = "placeholder";
@@ -242,14 +262,13 @@ Parse.Cloud.define("getStartups", function(request, response) {
     "Biz" : biz,
     "Product" : product,
     "Tech" : tech,
+    "Tagline" : tagline,
     "FitScore" : fitScore
     });
 
-    arr = arr.sort(compareScores);
-
-
   }).then(function(results){
 
+    arr = arr.sort(compareScores);
     response.success(arr.slice(0,10));
 
   }, function(error) {
@@ -297,15 +316,15 @@ Parse.Cloud.define("submit", function(request, response) {
     for(var i=0, len=results.length; i < len; i++){
       var startup = results[i];
       var id = startup.id;
-      name = startup.get("Name");
+      name = startup.get("name");
 
 //Check if it's a biz, product or tech evaluator
       if(isInArray(id, biz)){
-        startup.set("Biz", evaluator);  //pointer
+        startup.set("biz", evaluator);  //pointer
       } else if(isInArray(id, product)){
-        startup.set("Product", evaluator); //pointer
+        startup.set("product", evaluator); //pointer
       }else if(isInArray(id, tech)){
-        startup.set("Tech", evaluator);  //pointer
+        startup.set("tech", evaluator);  //pointer
       } else {
         console.error("startup is in none of the arrays");
       }
@@ -353,49 +372,3 @@ Parse.Cloud.define("submitAssignments", function(request, response) {
   });
 
 });
-
-
-// Parse.Cloud.define("submit", function(request, response) {
-//
-//   var Startups = Parse.Object.extend("Startups");
-//
-//   var email = request.params.email;
-//
-//   var biz = request.params.biz;
-//   var product = request.params.product;
-//   var tech = request.params.tech;
-//
-//   console.log("biz : " + biz);
-//   console.log("prod : " + product);
-//   console.log("tech : " + tech);
-//   console.log("email : " + email);
-//
-//   var bizQuery = new Parse.Query(Startups);
-//   var productQuery = new Parse.Query(Startups);
-//   var techQuery = new Parse.Query(Startups);
-//
-//   bizQuery.containedIn("objectId", biz);
-//   productQuery.containedIn("objectId", product);
-//   techQuery.containedIn("objectId", tech);
-//
-//
-//   bizQuery.each(function(startup){
-//     var name = startup.get("Name");
-//     console.log("name : " + name);
-//     startup.set("Biz", email);
-//     startup.save();
-//   });
-//
-//   productQuery.each(function(startup){
-//     //var name = startup.get("Name");
-//     startup.set("Product", email);
-//     startup.save();
-//   });
-//
-//   techQuery.each(function(startup){
-//     //var name = startup.get("Name");
-//     startup.set("Tech", email);
-//     startup.save();
-//   });
-//
-// });
