@@ -67,27 +67,43 @@ var getFitScore = function(startupTags, evaluatorTags) {
   return fitScore;
 }
 
-// Parse.Cloud.beforeSave("Tags", function(request, response) {
-//
-//     console.log("beforeSave Tags");
-//
-//     var Tags = Parse.Object.extend("Tags");
-//     var query = new Parse.Query(Tags);
-//     query.equalTo("name", request.object.get("name"));
-//     query.first({
-//       success: function(object) {
-//         if (object) {
-//           response.error("beforeSave Tag : A tag with this name already exists.");
-//         } else {
-//           response.success();
-//         }
-//       },
-//       error: function(error) {
-//         response.error("beforeSave Tag : Could not validate uniqueness for this Tag object.");
-//       }
-//     });
-// });
 
+Parse.Cloud.job("makeTagsArrays", function(request, status) {
+
+  // Query for all upvotes
+  //NOT FINISHED
+  var Tags = Parse.Object.extend("Tags");
+  var tagQuery = new Parse.Query(Tags);
+  tagQuery.equalTo("name", "All Tags"); //the class only contains one object, called All Tags
+
+  var Startups = Parse.Object.extend("Startups");
+  var query = new Parse.Query(Startups);
+
+  var allTags =[]; //array with all tags (not unique)
+
+  query.each(function(startup) {
+
+      //Get tags from each startup and create array of tags
+      var tagsString = startup.get("tags");
+      var name = startup.get("name");
+      if(tagsString != null) {
+        var tagsArray = separateTags(tagsString);
+      } else {
+        var tagsArray = [];
+      }
+
+      tagsArray = tagsArray.filter(function(item, pos) {
+        return tagsArray.indexOf(item) == pos;
+      });
+      startup.set("tagsArray", tagsArray);
+      startup.save();
+
+  }).then(function() {
+      status.success("makeTagsArrays success");
+  }, function(error) {
+      status.error("makeTagsArrays something went wrong.");
+  });
+});
 
 Parse.Cloud.job("getUniqueTags", function(request, status) {
 
@@ -222,6 +238,11 @@ Parse.Cloud.define("getStartups", function(request, response) {
   var evaluatorTags = separateTags(evaluatorTagsString);
   evaluatorTags = evaluatorTags.concat(evaluatorIndustry); //we're using the industries as just regular tags
 
+  //filter out the duplicates
+  evaluatorTags = evaluatorTags.filter(function(item, pos) {
+    return evaluatorTags.indexOf(item) == pos;
+  });
+
 
   var Startups = Parse.Object.extend("Startups");
   var query = new Parse.Query(Startups);
@@ -229,23 +250,40 @@ Parse.Cloud.define("getStartups", function(request, response) {
 
   var startups = [];
 
-  var bestFitScore = 0;
-
   query.each(function(startup){
 
     var id = startup.id;
     var name = startup.get("name");
     var tagline = startup.get("tagline");
     var startupTags = startup.get("tags");
+    var tagsArray = startup.get("tagsArray");
 
-    if(startupTags == null) {
-      startupTags = "placeholder";
+    if (!tagsArray){
+      tagsArray = separateTags(startupTags);
+      console.log("name : " + name + " tags array: " + tagsArray);
+      tagsArray = tagsArray.filter(function(item, pos) {
+        return tagsArray.indexOf(item) == pos;
+      });
+      console.log("deleted duplicates " + name + " tags array: " + tagsArray);
+      startup.set("tagsArray", tagsArray);
+      startup.save();
     }
+
+    if(tagsArray == null) {
+      tagsArray = [];
+    }
+
+    //var startupTags = separateTags(startupTags); //startupTags is a comma separated string of tags, need to be converted to an array first
+    var fitScore = getFitScore(tagsArray, evaluatorTags);
+
+    // if(startupTags == null) {
+    //   startupTags = "placeholder";
+    // }
 
     //It could be a good idea to store startup tags as an array instead of a string
     //Wouldn't have to convert them to array every time
-    var startupTags = separateTags(startupTags); //startupTags is a comma separated string of tags, need to be converted to an array first
-    var fitScore = getFitScore(startupTags, evaluatorTags);
+    // var startupTags = separateTags(startupTags); //startupTags is a comma separated string of tags, need to be converted to an array first
+    // var fitScore = getFitScore(startupTags, evaluatorTags);
 
     startups.push({
     "Id" : id,
