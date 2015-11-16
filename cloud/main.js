@@ -68,6 +68,190 @@ var getFitScore = function(startupTags, evaluatorTags) {
 }
 
 
+Parse.Cloud.job("standardisePeople", function(request, status) {
+
+  // Query for all upvotes
+  //NOT FINISHED
+  var PeopleRaw = Parse.Object.extend("PeopleRaw");
+  var rawQuery = new Parse.Query(PeopleRaw);
+
+  var People = Parse.Object.extend("People");
+
+  var allTags =[]; //array with all tags (not unique)
+
+  query.each(function(rawPerson) {
+
+
+      var person = new People();
+
+      var email = rawPerson.get("email");
+      var firstName = rawPerson.get("firstName");
+      var alumni = rawPerson.get("alumni");
+      var program = rawPerson.get("program");
+      var gender = rawPerson.get("gender");
+      var english = rawPerson.get("english");
+      var french = rawPerson.get("french");
+      var italian = rawPerson.get("italian");
+      var german = rawPerson.get("german");
+      var portuguese = rawPerson.get("portuguese");
+      var spanish = rawPerson.get("spanish");
+      var arabic = rawPerson.get("arabic");
+      var russian = rawPerson.get("russian");
+      var otherLanguage = rawPerson.get("otherLanguage");
+      var organisation = rawPerson.get("organisation");
+      var basedIn = rawPerson.get("basedIn");
+      var jobTitle = rawPerson.get("jobTitle");
+      var biz = rawPerson.get("biz");
+      var bizStrategy = rawPerson.get("bizStrategy");
+      var legal = rawPerson.get("legal");
+      var financialConsulting = rawPerson.get("financialConsulting");
+      var gettingStarted = rawPerson.get("gettingStarted");
+      var hr = rawPerson.get("hr");
+      var businessDev = rawPerson.get("businessDev");
+      var careerAdvice = rawPerson.get("careerAdvice");
+      var internationalDev = rawPerson.get("internationalDev");
+      var otherBiz = rawPerson.get("otherBiz");
+      var productDesign = rawPerson.get("productDesign");
+      var ux = rawPerson.get("ux");
+      var leanStartup = rawPerson.get("leanStartup");
+      var productManagement = rawPerson.get("productManagement");
+      var metricsAnalytics = rawPerson.get("metricsAnalytics");
+      var prototyping = rawPerson.get("prototyping");
+      var userResearch = rawPerson.get("userResearch");
+      var graphicDesigner = rawPerson.get("graphicDesigner");
+      var otherProduct = rawPerson.get("otherProduct");
+      var salesMarketing = rawPerson.get("salesMarketing");
+      var socialMedia = rawPerson.get("socialMedia");
+      var seo = rawPerson.get("seo");
+      var pr = rawPerson.get("pr");
+      var branding = rawPerson.get("branding");
+      var publishing = rawPerson.get("publishing");
+      var inboundMarketing = rawPerson.get("inboundMarketing");
+      var emailMarketing = rawPerson.get("emailMarketing");
+      var copywriting = rawPerson.get("copywriting");
+      var growthStrategy = rawPerson.get("growthStrategy");
+      var sem = rawPerson.get("sem");
+      var salesLead = rawPerson.get("salesLead");
+      var advertising = rawPerson.get("advertising");
+      var otherMarketing = rawPerson.get("otherMarketing");
+      var funding = rawPerson.get("funding");
+      var crowdfunding = rawPerson.get("crowdfunding");
+      var bizAngel = rawPerson.get("bizAngel");
+      var vc = rawPerson.get("vc");
+      var finance = rawPerson.get("finance");
+      var bootstrapping = rawPerson.get("bootstrapping");
+      var nonProfit = rawPerson.get("nonProfit");
+      var publicSub = rawPerson.get("publicSub");
+      var otherFunding = rawPerson.get("otherFunding");
+      var humanSkills = rawPerson.get("humanSkills");
+      var productivityOrganisation = rawPerson.get("productivityOrganisation");
+      var publicSpeaking = rawPerson.get("publicSpeaking");
+      var leadership = rawPerson.get("leadership");
+      var coaching = rawPerson.get("coaching");
+      var teamManagement = rawPerson.get("teamManagement");
+      var negotiation = rawPerson.get("negotiation");
+      var otherHuman = rawPerson.get("otherHuman");
+      var tech = rawPerson.get("tech");
+      var stack = rawPerson.get("stack");
+      var skill = rawPerson.get("skill");
+      var industries = rawPerson.get("industries");
+      var artDesign = rawPerson.get("artDesign");
+      var architecture = rawPerson.get("architecture");
+      var charity = rawPerson.get("charity");
+      var collabEcon = rawPerson.get("collabEcon");
+      var consumerGoods = rawPerson.get("consumerGoods");
+      var education = rawPerson.get("education");
+      var energy = rawPerson.get("energy");
+      var familyHomecare = rawPerson.get("familyHomecare");
+      var fashionTextile = rawPerson.get("fashionTextile");
+      var financialServices = rawPerson.get("financialServices");
+      var foodTobacco = rawPerson.get("foodTobacco");
+      var healthcare = rawPerson.get("healthcare");
+      var lifestyle = rawPerson.get("lifestyle");
+      var marketingCommunication = rawPerson.get("marketingCommunication");
+      var mediaEntertainment = rawPerson.get("mediaEntertainment");
+      var musical = rawPerson.get("musical");
+      var political = rawPerson.get("political");
+      var professionalServices = rawPerson.get("professionalServices");
+      var security = rawPerson.get("security");
+      var semiconductors = rawPerson.get("semiconductors");
+      var softwareServices = rawPerson.get("softwareServices");
+      var techHardware = rawPerson.get("techHardware");
+      var telecom = rawPerson.get("telecom");
+      var transportLogistics = rawPerson.get("transportLogistics");
+      var travelTourism = rawPerson.get("travelTourism");
+      var otherIndustry = rawPerson.get("otherIndustry");
+      var passionWork = rawPerson.get("passionWork");
+      var passionEntrep = rawPerson.get("passionEntrep");
+      var skillTransmission = rawPerson.get("skillTransmission");
+      var networking = rawPerson.get("networking");
+      var startupTrends = rawPerson.get("startupTrends");
+      var bizOpportunity = rawPerson.get("bizOpportunity");
+      var invOpportunity = rawPerson.get("invOpportunity");
+      var otherPassion = rawPerson.get("otherPassion");
+      var numaPositive = rawPerson.get("numaPositive");
+      var numaNegative = rawPerson.get("numaNegative");
+      var recentCollaboration = rawPerson.get("recentCollaboration");
+      var leCamping = rawPerson.get("leCamping");
+      var experiment = rawPerson.get("experiment");
+      var events = rawPerson.get("events");
+      var rise = rawPerson.get("rise");
+      var oneToOne = rawPerson.get("oneToOne");
+      var expertSessions = rawPerson.get("expertSessions");
+      var personalStory = rawPerson.get("personalStory");
+      var workshop = rawPerson.get("workshop");
+      var officeHours = rawPerson.get("officeHours");
+      var roundTable = rawPerson.get("roundTable");
+      var expertTalk = rawPerson.get("expertTalk");
+      var startupReview = rawPerson.get("startupReview");
+      var otherHelp = rawPerson.get("otherHelp");
+      var available = rawPerson.get("available");
+      var proudProject = rawPerson.get("proudProject");
+      var mentorExchange = rawPerson.get("mentorExchange");
+      var linkedIn = rawPerson.get("linkedIn");
+      var mentorRecommend = rawPerson.get("mentorRecommend");
+      var mentorName = rawPerson.get("mentorName");
+      var mentorEmail = rawPerson.get("mentorEmail");
+      var mentorDescription = rawPerson.get("mentorDescription");
+      var canConnect = rawPerson.get("canConnect");
+      var otherMentor = rawPerson.get("otherMentor");
+      var otherMentorName = rawPerson.get("otherMentorName");
+      var otherMentorEmail = rawPerson.get("otherMentorEmail");
+      var otherMentorDescription = rawPerson.get("otherMentorDescription");
+      var otherMentorConnect = rawPerson.get("otherMentorConnect");
+      var startDate = rawPerson.get("startDate");
+      var submitDate = rawPerson.get("submitDate");
+      var networkId = rawPerson.get("networkId");
+
+
+
+      assignment.set("email", email); //string
+      assignment.set("expertise", expertise); //pointer
+      assignment.set("assigned", false);
+
+      //Get tags from each startup and create array of tags
+      var tagsString = startup.get("tags");
+      var name = startup.get("name");
+      if(tagsString != null) {
+        var tagsArray = separateTags(tagsString);
+      } else {
+        var tagsArray = [];
+      }
+
+      tagsArray = tagsArray.filter(function(item, pos) {
+        return tagsArray.indexOf(item) == pos;
+      });
+
+      startup.set("tagsArray", tagsArray);
+      startup.save();
+
+  }).then(function() {
+      status.success("standardisePeople success");
+  }, function(error) {
+      status.error("standardisePeople something went wrong.");
+  });
+});
+
 Parse.Cloud.job("makeTagsArrays", function(request, status) {
 
   // Query for all upvotes
