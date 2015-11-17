@@ -8,7 +8,7 @@ var separateTags = function(string) {
 
   var arr = [];
 
-  if(your_string.indexOf("\n") === -1)
+  if(string.indexOf("\n") === -1)
   {
     console.log("no new line found.");
     arr = string.split(",");
@@ -83,7 +83,7 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
   // Query for all upvotes
   //NOT FINISHED
   var PeopleRaw = Parse.Object.extend("PeopleRaw");
-  var rawQuery = new Parse.Query(PeopleRaw);
+  var query = new Parse.Query(PeopleRaw);
 
   var People = Parse.Object.extend("People");
 
@@ -93,6 +93,7 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
 
       var email = rawPerson.get("email");
       var firstName = rawPerson.get("firstName");
+      var lastName = rawPerson.get("lastName");
       var alumni = rawPerson.get("alumni");
       var program = rawPerson.get("program");
       var gender = rawPerson.get("gender");
@@ -234,8 +235,13 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
 
 
 //BASIC INFO
+
+      var person = new People();
       person.set("email", email); //string
       person.set("firstName", firstName); //string
+
+      console.log("First name: " + firstName);
+
       person.set("lastName", lastName); //string
 
       if(linkedIn != null) {
