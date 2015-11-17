@@ -700,38 +700,7 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
         person.set("proudProject", proudProject);
       }
 
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-      person.set("", ); //string
-
-      person.set("", ); //string
-      assignment.set("expertise", expertise); //pointer
-      assignment.set("assigned", false);
-
-      //Get tags from each startup and create array of tags
-      var tagsString = startup.get("tags");
-      var name = startup.get("name");
-      if(tagsString != null) {
-        var tagsArray = separateTags(tagsString);
-      } else {
-        var tagsArray = [];
-      }
-
-      tagsArray = tagsArray.filter(function(item, pos) {
-        return tagsArray.indexOf(item) == pos;
-      });
-
-      startup.set("tagsArray", tagsArray);
-      startup.save();
+      person.save();
 
   }).then(function() {
       status.success("standardisePeople success");
