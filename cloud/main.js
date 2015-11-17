@@ -5,7 +5,17 @@ var moment = require('moment');
 
 var separateTags = function(string) {
   //this returns an array of words that were previously separated by commas
-  var arr = string.split(",");
+
+  var arr = [];
+
+  if(your_string.indexOf("\n") === -1)
+  {
+    console.log("no new line found.");
+    arr = string.split(",");
+  } else {
+    arr = string.split("\n");
+  }
+
   var arrayLength = arr.length;
   for (var i = 0; i < arrayLength; i++) {
     arr[i] = arr[i].trim().toLowerCase(); //remove leading and trailing whitespace
@@ -80,9 +90,6 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
   var allTags =[]; //array with all tags (not unique)
 
   query.each(function(rawPerson) {
-
-
-      var person = new People();
 
       var email = rawPerson.get("email");
       var firstName = rawPerson.get("firstName");
@@ -189,8 +196,10 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
       var bizOpportunity = rawPerson.get("bizOpportunity");
       var invOpportunity = rawPerson.get("invOpportunity");
       var otherPassion = rawPerson.get("otherPassion");
+
       var numaPositive = rawPerson.get("numaPositive");
       var numaNegative = rawPerson.get("numaNegative");
+
       var recentCollaboration = rawPerson.get("recentCollaboration");
       var leCamping = rawPerson.get("leCamping");
       var experiment = rawPerson.get("experiment");
@@ -224,8 +233,487 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
       var networkId = rawPerson.get("networkId");
 
 
+//BASIC INFO
+      person.set("email", email); //string
+      person.set("firstName", firstName); //string
+      person.set("lastName", lastName); //string
 
-      assignment.set("email", email); //string
+      if(linkedIn != null) {
+        person.set("linkedInUrl", linkedIn);
+      }
+
+      if (alumni == 0) {
+        person.set("alumni", false);
+      } else if (alumni == 1) {
+        person.set("alumni", true);
+      } else {
+        // do nothing, it will display as 'undefined'
+      }
+      person.set("gender", gender); //string
+
+//LANGUAGES
+      if (english != null) {
+        person.add("languages", "english");
+      }
+      if (french != null) {
+        person.add("languages", "french");
+      }
+      if (italian != null) {
+        person.add("languages", "italian");
+      }
+      if (german != null) {
+        person.add("languages", "german");
+      }
+      if (portuguese != null) {
+        person.add("languages", "portuguese");
+      }
+      if (spanish != null) {
+        person.add("languages", "spanish");
+      }
+      if (arabic != null) {
+        person.add("languages", "arabic");
+      }
+      if (russian != null) {
+        person.add("languages", "russian");
+      }
+      if (otherLanguage != null) {
+        person.add("languages", otherLanguage);
+      }
+
+//JOb & SKILLS
+      person.set("organisation", organisation); //string
+      person.set("basedIn", basedIn); //string
+      person.set("jobTitle", jobTitle); //string
+
+
+//BUSINESS
+      if (biz == 0) {
+        // do nothing, it will be set to []
+      } else if (biz == 1) {
+
+        if (bizStrategy != null) {
+          person.add("biz", bizStrategy);
+        }
+        if (legal != null) {
+          person.add("biz", legal);
+        }
+        if (financialConsulting != null) {
+          person.add("biz", financialConsulting);
+        }
+        if (gettingStarted != null) {
+          person.add("biz", gettingStarted);
+        }
+        if (hr != null) {
+          person.add("biz", hr);
+        }
+        if (businessDev != null) {
+          person.add("biz", businessDev);
+        }
+        if (careerAdvice != null) {
+          person.add("biz", careerAdvice);
+        }
+        if (internationalDev != null) {
+          person.add("biz", internationalDev);
+        }
+        if (otherBiz != null) {
+          var bizArray = separateTags(otherBiz);
+          for(var i=0, len=bizArray.length; i < len; i++){
+            var skill = bizArray[i];
+            person.addUnique("biz", skill);
+          }
+        }
+
+      } else {
+        //TODO flag as 'missing info'
+      }
+
+
+//PRODUCT AND DESIGN
+      if (productDesign == 0) {
+        // do nothing, it will be set to []
+      } else if (productDesign == 1) {
+
+        if (ux != null) {
+          person.add("productDesign", ux);
+        }
+        if (leanStartup != null) {
+          person.add("productDesign", leanStartup);
+        }
+        if (productManagement != null) {
+          person.add("productDesign", productManagement);
+        }
+        if (metricsAnalytics != null) {
+          person.add("productDesign", metricsAnalytics);
+        }
+        if (prototyping != null) {
+          person.add("productDesign", prototyping);
+        }
+        if (userResearch != null) {
+          person.add("productDesign", userResearch);
+        }
+        if (graphicDesigner != null) {
+          person.add("productDesign", graphicDesigner);
+        }
+
+        if (otherProduct != null) {
+          var prodArray = separateTags(otherProduct);
+          for(var i=0, len=prodArray.length; i < len; i++){
+            var skill = prodArray[i];
+            person.addUnique("productDesign", skill);
+          }
+        }
+      } else {
+        //TODO flag as 'missing info'
+      }
+
+//SALES & MARKETING
+      if (salesMarketing == 0) {
+        // do nothing, it will be set to []
+      } else if (salesMarketing == 1) {
+
+        if (socialMedia != null) {
+          person.add("salesMarketing", socialMedia);
+        }
+        if (seo != null) {
+          person.add("salesMarketing", seo);
+        }
+        if (pr != null) {
+          person.add("salesMarketing", pr);
+        }
+        if (branding != null) {
+          person.add("salesMarketing", branding);
+        }
+        if (publishing != null) {
+          person.add("salesMarketing", publishing);
+        }
+        if (inboundMarketing != null) {
+          person.add("salesMarketing", inboundMarketing);
+        }
+        if (emailMarketing != null) {
+          person.add("salesMarketing", emailMarketing);
+        }
+        if (copywriting != null) {
+          person.add("salesMarketing", copywriting);
+        }
+        if (growthStrategy != null) {
+          person.add("salesMarketing", growthStrategy);
+        }
+        if (sem != null) {
+          person.add("salesMarketing", sem);
+        }
+        if (salesLead != null) {
+          person.add("salesMarketing", salesLead);
+        }
+        if (advertising != null) {
+          person.add("salesMarketing", advertising);
+        }
+
+        if (otherMarketing != null) {
+          var marketingArray = separateTags(otherMarketing);
+          for(var i=0, len=marketingArray.length; i < len; i++){
+            var skill = marketingArray[i];
+            person.addUnique("salesMarketing", skill);
+          }
+        }
+      } else {
+        //TODO flag as 'missing info'
+      }
+
+
+
+//FUNDING
+      if (funding == 0) {
+        // do nothing, it will be set to []
+      } else if (funding == 1) {
+
+        if (crowdfunding != null) {
+          person.add("funding", crowdfunding);
+        }
+        if (bizAngel != null) {
+          person.add("funding", bizAngel);
+        }
+        if (vc != null) {
+          person.add("funding", vc);
+        }
+        if (finance != null) {
+          person.add("funding", finance);
+        }
+        if (bootstrapping != null) {
+          person.add("funding", bootstrapping);
+        }
+        if (nonProfit != null) {
+          person.add("funding", nonProfit);
+        }
+        if (publicSub != null) {
+          person.add("funding", publicSub);
+        }
+
+        if (otherFunding != null) {
+          var fundingArray = separateTags(otherFunding);
+          for(var i=0, len=otherMarketing.length; i < len; i++){
+            var skill = fundingArray[i];
+            person.addUnique("funding", skill);
+          }
+        }
+      } else {
+        //TODO flag as 'missing info'
+      }
+
+
+//HUMAN SKILLS AND MANAGEMENT
+    if (humanSkills == 0) {
+      // do nothing, it will be set to []
+    } else if (humanSkills == 1) {
+
+      if (productivityOrganisation != null) {
+        person.add("humanSkills", productivityOrganisation);
+      }
+      if (publicSpeaking != null) {
+        person.add("humanSkills", publicSpeaking);
+      }
+      if (leadership != null) {
+        person.add("humanSkills", leadership);
+      }
+      if (coaching != null) {
+        person.add("humanSkills", coaching);
+      }
+      if (teamManagement != null) {
+        person.add("humanSkills", teamManagement);
+      }
+      if (negotiation != null) {
+        person.add("humanSkills", "negotiation");
+      }
+
+      if (otherHuman != null) {
+        var humanArray = separateTags(otherHuman);
+        for(var i=0, len=humanArray.length; i < len; i++){
+          var skill = humanArray[i];
+          person.addUnique("humanSkills", skill);
+        }
+      }
+    } else {
+      //TODO flag as 'missing info'
+    }
+
+//TECH
+
+    if (tech == 0) {
+      // do nothing, it will be set to []
+    } else if (tech == 1) {
+
+      if (stack != null) {
+        var stackArray = separateTags(stack);
+        for(var i=0, len=stackArray.length; i < len; i++){
+          var skill = stackArray[i];
+          person.addUnique("tech", skill);
+        }
+      }
+      if (skill != null) {
+        var skillArray = separateTags(skill);
+        for(var i=0, len=skillArray.length; i < len; i++){
+          var skill = skillArray[i];
+          person.addUnique("tech", skill);
+        }
+      }
+    } else {
+      //TODO flag as 'missing info'
+    }
+
+
+//INDUSTRIES
+
+    if (industries == 0) {
+      // do nothing, it will be set to []
+    } else if (industries == 1) {
+
+      if (artDesign != null) {
+        person.add("industries", artDesign);
+      }
+      if (architecture != null) {
+        person.add("industries", architecture);
+      }
+      if (charity != null) {
+        person.add("industries", charity);
+      }
+      if (collabEcon != null) {
+        person.add("industries", collabEcon);
+      }
+      if (consumerGoods != null) {
+        person.add("industries", consumerGoods);
+      }
+      if (education != null) {
+        person.add("industries", education);
+      }
+      if (energy != null) {
+        person.add("industries", energy);
+      }
+      if (familyHomecare != null) {
+        person.add("industries", familyHomecare);
+      }
+      if (fashionTextile != null) {
+        person.add("industries", fashionTextile);
+      }
+      if (financialServices != null) {
+        person.add("industries", financialServices);
+      }
+      if (foodTobacco != null) {
+        person.add("industries", "food/beverage/tobacco");
+      }
+      if (healthcare != null) {
+        person.add("industries", healthcare);
+      }
+      if (lifestyle != null) {
+        person.add("industries", lifestyle);
+      }
+      if (marketingCommunication != null) {
+        person.add("industries", marketingCommunication);
+      }
+      if (mediaEntertainment != null) {
+        person.add("industries", mediaEntertainment);
+      }
+      if (musical != null) {
+        person.add("industries", musical);
+      }
+      if (political != null) {
+        person.add("industries", political);
+      }
+      if (professionalServices != null) {
+        person.add("industries", professionalServices);
+      }
+      if (security != null) {
+        person.add("industries", security);
+      }
+      if (semiconductors != null) {
+        person.add("industries", semiconductors);
+      }
+      if (softwareServices != null) {
+        person.add("industries", softwareServices);
+      }
+      if (techHardware != null) {
+        person.add("industries", techHardware);
+      }
+
+      if (telecom != null) {
+        person.add("industries", telecom);
+      }
+
+      if (transportLogistics != null) {
+        person.add("industries", transportLogistics);
+      }
+
+      if (travelTourism != null) {
+        person.add("industries", travelTourism);
+      }
+
+
+      if (otherIndustry != null) {
+        var industryArray = separateTags(otherIndustry);
+        for(var i=0, len=industryArray.length; i < len; i++){
+          var skill = industryArray[i];
+          person.addUnique("industries", skill);
+        }
+      }
+    } else {
+      //TODO flag as 'missing info'
+    }
+
+//MOTIVATION
+
+
+      if (passionWork != null) {
+        person.add("motivation", passionWork);
+      }
+      if (passionEntrep != null) {
+        person.add("motivation", passionEntrep);
+      }
+      if (skillTransmission != null) {
+        person.add("motivation", skillTransmission);
+      }
+      if (networking != null) {
+        person.add("motivation", networking);
+      }
+      if (startupTrends != null) {
+        person.add("motivation", startupTrends);
+      }
+      if (bizOpportunity != null) {
+        person.add("motivation", bizOpportunity);
+      }
+      if (invOpportunity != null) {
+        person.add("motivation", invOpportunity);
+      }
+      if (otherPassion != null) {
+        person.add("motivation", otherPassion);
+      }
+
+//FEEDBACK AND OPINION
+
+      if (numaPositive != null) {
+        person.set("positiveFeedback", numaPositive);
+      }
+
+      if (numaNegative != null) {
+        person.set("negativeFeedback", numaNegative);
+      }
+
+//PREFERRED FORMAT
+
+      if (oneToOne != null) {
+        person.add("preferredCollaboration", oneToOne);
+      }
+      if (expertSessions != null) {
+        person.add("preferredCollaboration", expertSessions);
+      }
+      if (personalStory != null) {
+        person.add("preferredCollaboration", personalStory);
+      }
+      if (workshop != null) {
+        person.add("preferredCollaboration", workshop);
+      }
+      if (officeHours != null) {
+        person.add("preferredCollaboration", officeHours);
+      }
+      if (roundTable != null) {
+        person.add("preferredCollaboration", roundTable);
+      }
+      if (expertTalk != null) {
+        person.add("preferredCollaboration", expertTalk);
+      }
+      if (startupReview != null) {
+        person.add("preferredCollaboration", startupReview);
+      }
+      if (otherHelp != null) {
+        person.add("preferredCollaboration", otherHelp);
+      }
+
+//AVAILABILITY SCALE 1-10 (1-Don't bother me, I'm a diva !, 10-I can be around several hours a week)
+      person.set("availabilty", available);
+
+//OTHER
+
+      if(mentorExchange == 0) {
+        person.set("mentorExchange", false);
+      }else if (mentorExchange == 1) {
+        person.set("mentorExchange", true);
+      }
+
+      if(proudProject != null) {
+        person.set("proudProject", proudProject);
+      }
+
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+      person.set("", ); //string
+
+      person.set("", ); //string
       assignment.set("expertise", expertise); //pointer
       assignment.set("assigned", false);
 
