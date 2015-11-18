@@ -2,6 +2,7 @@
 // Use Parse.Cloud.define to define as many cloud functions as you want.
 // For example:
 var moment = require('moment');
+var _ = require('underscore');
 
 var separateTags = function(string) {
   //this returns an array of words that were previously separated by commas
@@ -18,8 +19,11 @@ var separateTags = function(string) {
     arr = string.split("/");
   }
 
-  var arrayLength = arr.length;
-  for (var i = 0; i < arrayLength; i++) {
+  return arr
+}
+
+var toLowerCase = function(arr) {
+  for (var i = 0; i < arr.length; i++) {
     arr[i] = arr[i].trim().toLowerCase(); //remove leading and trailing whitespace
   }
   return arr
@@ -27,6 +31,7 @@ var separateTags = function(string) {
 
 var removeDuplicates = function(array) {
 
+  array = toLowerCase(array);
   var filteredArray = array.filter(function(item, pos) {
     return array.indexOf(item) == pos;
   });
@@ -716,21 +721,56 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
   //NOT FINISHED
   var PeopleRaw = Parse.Object.extend("PeopleRaw");
   var query = new Parse.Query(PeopleRaw);
+  query.limit(1000); //normally it's capped on 100
 
   var promise = Parse.Promise.as();
-
-  query.each(function(rawPerson) {
-
-    var person = standardisePerson(rawPerson);
-    person.save();
+  query.find().then(function(results) {
+    // Create a trivial resolved promise as a base case.
+    console.log(results.length);
+    var promise = Parse.Promise.as();
+    _.each(results, function(rawPerson) {
+      // For each item, extend the promise with a function to save it.
+      promise = promise.then(function() {
+        // Return a promise that will be resolved when the save is finished.
+        var person = standardisePerson(rawPerson);
+        return person.save();
+      });
+    });
+    return promise;
 
   }).then(function() {
-      console.log("counter: " + counter);
       status.success("standardisePeople success");
   }, function(error) {
       status.error("standardisePeople something went wrong.");
   });
 });
+
+
+Parse.Cloud.beforeSave("People", function(request, response) {
+
+    console.log('accessed beforeSave People');
+
+//REMOVE DUPLICATES & MAKE TAGS ARRAY
+    arrayNames = ["biz", "humanSkills", "salesMarketing", "funding", "productDesign", "tech", "languages", "industries"];
+    allTags = [];
+    for (var i = 0; i < arrayNames.length; i++) {
+      var name = arrayNames[i];
+      var array = request.object.get(name);
+      if (array != null) {
+        array = removeDuplicates(array);
+      }
+      request.object.set(name, array);
+      allTags = allTags.concat(array);
+    }
+
+    allTags = removeDuplicates(allTags);
+    console.log(allTags);
+    request.object.set("tags", allTags);
+
+    response.success();
+
+});
+
 
 Parse.Cloud.job("makeTagsArrays", function(request, status) {
 
