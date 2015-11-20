@@ -201,10 +201,8 @@ var standardisePerson = function(rawPerson) {
   var bizOpportunity = rawPerson.get("bizOpportunity");
   var invOpportunity = rawPerson.get("invOpportunity");
   var otherPassion = rawPerson.get("otherPassion");
-
   var numaPositive = rawPerson.get("numaPositive");
   var numaNegative = rawPerson.get("numaNegative");
-
   var recentCollaboration = rawPerson.get("recentCollaboration");
   var leCamping = rawPerson.get("leCamping");
   var experiment = rawPerson.get("experiment");
@@ -569,7 +567,7 @@ if (industries == 0) {
     person.add("industries", financialServices);
   }
   if (foodTobacco != null) {
-    person.add("industries", "food/beverage/tobacco");
+    person.add("industries", "food/beverages/tobacco");
   }
   if (healthcare != null) {
     person.add("industries", healthcare);
@@ -599,14 +597,14 @@ if (industries == 0) {
     person.add("industries", semiconductors);
   }
   if (softwareServices != null) {
-    person.add("industries", softwareServices);
+    person.add("industries", "software");
   }
   if (techHardware != null) {
     person.add("industries", techHardware);
   }
 
   if (telecom != null) {
-    person.add("industries", telecom);
+    person.add("industries", "telecommunications");
   }
 
   if (transportLogistics != null) {
@@ -752,18 +750,20 @@ Parse.Cloud.beforeSave("People", function(request, response) {
 
 //REMOVE DUPLICATES & MAKE TAGS ARRAY
     arrayNames = ["biz", "humanSkills", "salesMarketing", "funding", "productDesign", "tech", "languages", "industries"];
-    allTags = [];
+    var allTags = [];
     for (var i = 0; i < arrayNames.length; i++) {
       var name = arrayNames[i];
       var array = request.object.get(name);
       if (array != null) {
         array = removeDuplicates(array);
+        request.object.set(name, array);
+        allTags = allTags.concat(array);
       }
-      request.object.set(name, array);
-      allTags = allTags.concat(array);
     }
 
+    if(allTags)
     allTags = removeDuplicates(allTags);
+    console.log(request.object.get("lastName"));
     console.log(allTags);
     request.object.set("tags", allTags);
 
@@ -858,20 +858,41 @@ Parse.Cloud.job("getUniqueTags", function(request, status) {
 });
 
 
-Parse.Cloud.define("emailCheck", function(request, response) {
+Parse.Cloud.define("getTagsAndIndustries", function(request, response) {
+
+//This returns a list of tags associated with the evaluator and a boolean for each of "Product", "Tech" and "Biz" categories
 
   var email = request.params.email;
-  var Evaluators = Parse.Object.extend("Evaluators");
-  var query = new Parse.Query(Evaluators);
-  query.equalTo("Email", email);
+  var People = Parse.Object.extend("People");
+  var query = new Parse.Query(People);
+  query.equalTo("email", email);
+
+  var outcome = [];
 
   query.find().then(function(results) {
 
       var emailExists = false
       if (results.length > 0) {
           emailExists = true;
+
+          var person = results[0];
+          var id = person.id;
+          var firstName = person.get("firstName");
+          var tags = person.get("tags");
+
+          outcome.push({
+          "id" : id,
+          "firstName" : firstName,
+          "tags" : tags
+          });
       }
-      return emailExists;
+
+      outcome.push({
+        "valid" : emailExists
+      });
+
+
+      return outcome;
 
   }).then(function(result) {
       console.log("email : " + result);
@@ -879,7 +900,6 @@ Parse.Cloud.define("emailCheck", function(request, response) {
   }, function(error) {
       response.error('emailCheck error ' + error);
   });
-
 
 });
 
@@ -984,11 +1004,6 @@ Parse.Cloud.define("getStartups", function(request, response) {
     //   startupTags = "placeholder";
     // }
 
-    //It could be a good idea to store startup tags as an array instead of a string
-    //Wouldn't have to convert them to array every time
-    // var startupTags = separateTags(startupTags); //startupTags is a comma separated string of tags, need to be converted to an array first
-    // var fitScore = getFitScore(startupTags, evaluatorTags);
-
     startups.push({
     "Id" : id,
     "Name" : name,
@@ -1091,82 +1106,3 @@ Parse.Cloud.define("submitAssignments", function(request, response) {
   });
 
 });
-
-
-// Parse.Cloud.define("getStartups", function(request, response) {
-//
-//   var Startups = Parse.Object.extend("Startups");
-//
-//   //Startups that need Business evaluator
-//   var needsBiz = new Parse.Query(Startups);
-//   needsBiz.doesNotExist("biz");
-//
-//   //Startups that need Product evaluator
-//   var needsProduct = new Parse.Query(Startups);
-//   needsProduct.doesNotExist("product");
-//
-//   //Startups that need Tech evaluator
-//   var needsTech = new Parse.Query(Startups);
-//   needsTech.doesNotExist("tech");
-//
-//
-//   //Main query
-//   var mainQuery = Parse.Query.or(needsBiz, needsProduct, needsTech);
-//
-//   var arr = [];
-//
-//   var evaluatorIndustry = request.params.industry;
-//   //console.log("industry" + evaluatorIndustry);
-//   var evaluatorTagsString = request.params.tags;
-//   var evaluatorTags = separateTags(evaluatorTagsString);
-//   console.log(evaluatorTags);
-//   evaluatorTags = evaluatorTags.concat(evaluatorIndustry); //we're using the industries as just regular tags
-//   console.log(evaluatorTags);
-//   console.log(evaluatorTags[0]);
-//
-//   var bestFitScore = 0;
-//
-//   mainQuery.each(function(startup){
-//
-//     var id = startup.id;
-//     var name = startup.get("name");
-//     var biz = startup.get("biz");
-//     var product = startup.get("product");
-//     var tech = startup.get("tech");
-//     var tagline = startup.get("tagline");
-//     var startupTags = startup.get("tags");
-//
-//     if(startupTags == null) {
-//       startupTags = "placeholder";
-//     }
-//
-//     var startupTags = separateTags(startupTags); //startupTags is a comma separated string of tags, need to be converted to an array first
-//     var fitScore = getFitScore(startupTags, evaluatorTags);
-//
-//
-// //javascript ternary operator
-//      biz = (biz) ? 'has business evaluator' : 0;
-//      product = (product) ? 'has product evaluator' : 0;
-//      tech = (tech) ? 'has tech evaluator' : 0;
-//
-//     arr.push({
-//     "Id" : id,
-//     "Name" : name,
-//     "Biz" : biz,
-//     "Product" : product,
-//     "Tech" : tech,
-//     "Tagline" : tagline,
-//     "FitScore" : fitScore
-//     });
-//
-//   }).then(function(results){
-//
-//     arr = arr.sort(compareScores);
-//     response.success(arr);
-//     //response.success(arr.slice(0,10));
-//
-//   }, function(error) {
-//     response.error(error.code + " : " + error.message);
-//   });
-//
-// });
