@@ -754,6 +754,7 @@ Parse.Cloud.beforeSave("People", function(request, response) {
     for (var i = 0; i < arrayNames.length; i++) {
       var name = arrayNames[i];
       var array = request.object.get(name);
+      console.log("array: " + array);
       if (array != null) {
         array = removeDuplicates(array);
         request.object.set(name, array);
@@ -958,6 +959,7 @@ Parse.Cloud.define("getStartups", function(request, response) {
   console.log("expertise : " + evaluatorExpertise);
 
   var evaluatorIndustry = request.params.industry;
+  console.log("industry: " + evaluatorIndustry);
   var evaluatorTagsString = request.params.tags;
   var evaluatorTags = separateTags(evaluatorTagsString);
   evaluatorTags = evaluatorTags.concat(evaluatorIndustry); //we're using the industries as just regular tags
@@ -1027,9 +1029,11 @@ Parse.Cloud.define("getStartups", function(request, response) {
 Parse.Cloud.define("submit", function(request, response) {
 
   var Startups = Parse.Object.extend("Startups");
-  var Evaluators = Parse.Object.extend("Evaluators");
+  var People = Parse.Object.extend("People");
 
   var email = request.params.email;
+  var industries = request.params.industry;
+  var tags = request.params.tags;
 
   var selected = request.params.selected;
   var expertise = request.params.expertise;
@@ -1039,8 +1043,8 @@ Parse.Cloud.define("submit", function(request, response) {
   console.log("expertise : " + expertise);
   console.log("email : " + email);
 
-  var evaluatorQuery = new Parse.Query(Evaluators);
-  evaluatorQuery.equalTo("Email", email);
+  var evaluatorQuery = new Parse.Query(People);
+  evaluatorQuery.equalTo("email", email);
 
   evaluatorQuery.find().then(function(results){
 
@@ -1048,6 +1052,11 @@ Parse.Cloud.define("submit", function(request, response) {
         console.error("no such evaluator");
       } else if (results.length > 0) {
         evaluator = results[0];
+        var oldIndustries = evaluator.get("industries");
+        console.log("indsutries: " + industries);
+        industries = industries.concat(oldIndustries);
+        evaluator.set("industries", industries);
+        evaluator.save();
       }
 
       var startupQuery = new Parse.Query(Startups);
