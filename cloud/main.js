@@ -301,35 +301,37 @@ var standardisePerson = function(rawPerson) {
     // do nothing, it will be set to []
   } else if (biz == 1) {
 
+    person.add("skillProfile", "business");
+
     if (bizStrategy != null) {
-      person.add("biz", bizStrategy);
+      person.add("tags", bizStrategy);
     }
     if (legal != null) {
-      person.add("biz", legal);
+      person.add("tags", legal);
     }
     if (financialConsulting != null) {
-      person.add("biz", financialConsulting);
+      person.add("tags", financialConsulting);
     }
     if (gettingStarted != null) {
-      person.add("biz", gettingStarted);
+      person.add("tags", gettingStarted);
     }
     if (hr != null) {
-      person.add("biz", hr);
+      person.add("tags", hr);
     }
     if (businessDev != null) {
-      person.add("biz", businessDev);
+      person.add("tags", businessDev);
     }
     if (careerAdvice != null) {
-      person.add("biz", careerAdvice);
+      person.add("tags", careerAdvice);
     }
     if (internationalDev != null) {
-      person.add("biz", internationalDev);
+      person.add("tags", internationalDev);
     }
     if (otherBiz != null) {
       var bizArray = separateTags(otherBiz);
       for(var i=0, len=bizArray.length; i < len; i++){
         var skill = bizArray[i];
-        person.add("biz", "stuff");
+        person.add("tags", skill);
       }
     }
 
@@ -343,33 +345,35 @@ var standardisePerson = function(rawPerson) {
     // do nothing, it will be set to []
   } else if (productDesign == 1) {
 
+    person.add("skillProfile", "product & design");
+
     if (ux != null) {
-      person.add("productDesign", ux);
+      person.add("tags", ux);
     }
     if (leanStartup != null) {
-      person.add("productDesign", leanStartup);
+      person.add("tags", leanStartup);
     }
     if (productManagement != null) {
-      person.add("productDesign", productManagement);
+      person.add("tags", productManagement);
     }
     if (metricsAnalytics != null) {
-      person.add("productDesign", metricsAnalytics);
+      person.add("tags", metricsAnalytics);
     }
     if (prototyping != null) {
-      person.add("productDesign", prototyping);
+      person.add("tags", prototyping);
     }
     if (userResearch != null) {
-      person.add("productDesign", userResearch);
+      person.add("tags", userResearch);
     }
     if (graphicDesigner != null) {
-      person.add("productDesign", graphicDesigner);
+      person.add("tags", graphicDesigner);
     }
 
     if (otherProduct != null) {
       var prodArray = separateTags(otherProduct);
       for(var i=0, len=prodArray.length; i < len; i++){
         var skill = prodArray[i];
-        person.add("productDesign", skill);
+        person.add("tags", skill);
       }
     }
   } else {
@@ -381,48 +385,50 @@ var standardisePerson = function(rawPerson) {
     // do nothing, it will be set to []
   } else if (salesMarketing == 1) {
 
+    person.add("skillProfile", "sales & marketing");
+
     if (socialMedia != null) {
-      person.add("salesMarketing", socialMedia);
+      person.add("tags", socialMedia);
     }
     if (seo != null) {
-      person.add("salesMarketing", seo);
+      person.add("tags", seo);
     }
     if (pr != null) {
-      person.add("salesMarketing", pr);
+      person.add("tags", pr);
     }
     if (branding != null) {
-      person.add("salesMarketing", branding);
+      person.add("tags", branding);
     }
     if (publishing != null) {
-      person.add("salesMarketing", publishing);
+      person.add("tags", publishing);
     }
     if (inboundMarketing != null) {
-      person.add("salesMarketing", inboundMarketing);
+      person.add("tags", inboundMarketing);
     }
     if (emailMarketing != null) {
-      person.add("salesMarketing", emailMarketing);
+      person.add("tags", emailMarketing);
     }
     if (copywriting != null) {
-      person.add("salesMarketing", copywriting);
+      person.add("tags", copywriting);
     }
     if (growthStrategy != null) {
-      person.add("salesMarketing", growthStrategy);
+      person.add("tags", growthStrategy);
     }
     if (sem != null) {
-      person.add("salesMarketing", sem);
+      person.add("tags", sem);
     }
     if (salesLead != null) {
-      person.add("salesMarketing", salesLead);
+      person.add("tags", salesLead);
     }
     if (advertising != null) {
-      person.add("salesMarketing", advertising);
+      person.add("tags", advertising);
     }
 
     if (otherMarketing != null) {
       var marketingArray = separateTags(otherMarketing);
       for(var i=0, len=marketingArray.length; i < len; i++){
         var skill = marketingArray[i];
-        person.add("salesMarketing", skill);
+        person.add("tags", skill);
       }
     }
   } else {
@@ -436,33 +442,35 @@ var standardisePerson = function(rawPerson) {
     // do nothing, it will be set to []
   } else if (funding == 1) {
 
+    person.add("skillProfile", "funding");
+
     if (crowdfunding != null) {
-      person.add("funding", crowdfunding);
+      person.add("tags", crowdfunding);
     }
     if (bizAngel != null) {
-      person.add("funding", bizAngel);
+      person.add("tags", bizAngel);
     }
     if (vc != null) {
-      person.add("funding", vc);
+      person.add("tags", vc);
     }
     if (finance != null) {
-      person.add("funding", finance);
+      person.add("tags", finance);
     }
     if (bootstrapping != null) {
-      person.add("funding", bootstrapping);
+      person.add("tags", bootstrapping);
     }
     if (nonProfit != null) {
-      person.add("funding", nonProfit);
+      person.add("tags", nonProfit);
     }
     if (publicSub != null) {
-      person.add("funding", publicSub);
+      person.add("tags", publicSub);
     }
 
     if (otherFunding != null) {
       var fundingArray = separateTags(otherFunding);
       for(var i=0, len=fundingArray.length; i < len; i++){
         var skill = fundingArray[i];
-        person.add("funding", skill);
+        person.add("tags", skill);
       }
     }
   } else {
@@ -475,30 +483,32 @@ if (humanSkills == 0) {
   // do nothing, it will be set to []
 } else if (humanSkills == 1) {
 
+  person.add("skillProfile", "human skills & management");
+
   if (productivityOrganisation != null) {
-    person.add("humanSkills", productivityOrganisation);
+    person.add("tags", productivityOrganisation);
   }
   if (publicSpeaking != null) {
-    person.add("humanSkills", publicSpeaking);
+    person.add("tags", publicSpeaking);
   }
   if (leadership != null) {
-    person.add("humanSkills", leadership);
+    person.add("tags", leadership);
   }
   if (coaching != null) {
-    person.add("humanSkills", coaching);
+    person.add("tags", coaching);
   }
   if (teamManagement != null) {
-    person.add("humanSkills", teamManagement);
+    person.add("tags", teamManagement);
   }
   if (negotiation != null) {
-    person.add("humanSkills", "negotiation");
+    person.add("tags", "negotiation");
   }
 
   if (otherHuman != null) {
     var humanArray = separateTags(otherHuman);
     for(var i=0, len=humanArray.length; i < len; i++){
       var skill = humanArray[i];
-      person.add("humanSkills", skill);
+      person.add("tags", skill);
     }
   }
 } else {
@@ -511,18 +521,20 @@ if (tech == 0) {
   // do nothing, it will be set to []
 } else if (tech == 1) {
 
+  person.add("skillProfile", "technology");
+
   if (stack != null) {
     var stackArray = separateTags(stack);
     for(var i=0, len=stackArray.length; i < len; i++){
       var skill = stackArray[i];
-      person.add("tech", skill);
+      person.add("tags", skill);
     }
   }
   if (skill != null) {
     var skillArray = separateTags(skill);
     for(var i=0, len=skillArray.length; i < len; i++){
       var skill = skillArray[i];
-      person.add("tech", skill);
+      person.add("tags", skill);
     }
   }
 } else {
@@ -710,6 +722,8 @@ if (industries == 0) {
     person.set("proudProject", proudProject);
   }
 
+  person.set("isComplete", true);
+
   return person;
 }
 
@@ -744,33 +758,57 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
 });
 
 
-Parse.Cloud.beforeSave("People", function(request, response) {
+Parse.Cloud.job("filterStartups", function(request, status) {
 
-    console.log('accessed beforeSave People');
+    console.log('accessed filterStartups');
 
-//REMOVE DUPLICATES & MAKE TAGS ARRAY
-    arrayNames = ["biz", "humanSkills", "salesMarketing", "funding", "productDesign", "tech", "languages", "industries"];
-    var allTags = [];
-    for (var i = 0; i < arrayNames.length; i++) {
-      var name = arrayNames[i];
-      var array = request.object.get(name);
-      console.log("array: " + array);
-      if (array != null) {
-        array = removeDuplicates(array);
-        request.object.set(name, array);
-        allTags = allTags.concat(array);
-      }
-    }
+    var Startups = Parse.Object.extend("Startups");
+    var query = new Parse.Query(Startups);
+    query.limit(1000); //normally it's capped on 100
 
-    if(allTags)
-    allTags = removeDuplicates(allTags);
-    console.log(request.object.get("lastName"));
-    console.log(allTags);
-    request.object.set("tags", allTags);
+    var promise = Parse.Promise.as();
+    query.find().then(function(results) {
+      var promise = Parse.Promise.as();
+      _.each(results, function(startup) {
+        promise = promise.then(validitiyCheck);
 
-    response.success();
+        function validitiyCheck() {
+          // Return a promise that will be resolved when the save is finished.
+          var finalised = startup.get("dateFinalized");
+          if (finalised == null || finalised == " ") { //This startup is not finalised
+            return startup.destroy();
+          } else {
 
+            var id = startup.get("applicationID");
+            var secondQuery = new Parse.Query(Startups);
+            secondQuery.equalTo("applicationID", id);
+            console.log("duplicate query " + id);
+
+            return secondQuery.count().then(function(count) {
+                if (count > 1) { //This startup is a duplicate
+                  console.log("to be destroyed");
+                  return startup.destroy();
+                } else {
+                  console.log("do not destroy");
+                  return startup.save();
+                }
+            });
+          }
+        }
+      });
+
+      return promise;
+
+    }).then(function() {
+        status.success("filterStartups success");
+    }, function(error) {
+        status.error("filterStartups something went wrong.");
+    });
 });
+
+
+
+
 
 
 Parse.Cloud.job("makeTagsArrays", function(request, status) {
@@ -859,6 +897,113 @@ Parse.Cloud.job("getUniqueTags", function(request, status) {
 });
 
 
+Parse.Cloud.beforeSave("People", function(request, response) {
+
+    console.log('accessed beforeSave People');
+
+//REMOVE DUPLICATES & MAKE TAGS ARRAY
+    arrayNames = ["tags", "languages", "industries", "skillProfile"];
+    var allTags = [];
+    for (var i = 0; i < arrayNames.length; i++) {
+      var name = arrayNames[i];
+      var array = request.object.get(name);
+      console.log("array: " + array);
+      if (array != null) {
+        array = removeDuplicates(array);
+        request.object.set(name, array);
+        allTags = allTags.concat(array);
+      }
+    }
+
+    if(allTags)
+    allTags = removeDuplicates(allTags);
+    console.log(request.object.get("lastName"));
+    console.log(allTags);
+    request.object.set("tags", allTags);
+
+    response.success();
+
+});
+
+
+Parse.Cloud.define("completeEvaluator", function(request, response) {
+
+  var email = request.params.email;
+  var firstName = request.params.firstName;
+  var lastName = request.params.lastName;
+  var gender = request.params.gender;
+
+  var skillProfile = request.params.skillProfile; //array
+  var languages = request.params.languages; //comma separated string
+  var languageArray = separateTags(languages);
+  var organisation = request.params.organisation;
+  var linkedIn = request.params.linkedIn;
+
+  var People = Parse.Object.extend("People");
+  var query = new Parse.Query(People);
+  query.equalTo("email", email);
+
+  query.find().then(function(results) {
+
+      if (results.length > 0) {
+          emailExists = true;
+          var person = results[0];
+          person.set("firstName", firstName);
+          person.set("lastName", lastName);
+          person.set("gender", gender);
+          person.set("skillProfile", skillProfile);
+          person.set("languages", languageArray);
+          person.set("organisation", organisation);
+          person.set("linkedIn", linkedIn);
+          person.set("isComplete", true);
+
+      }
+
+      return person.save();
+
+  }).then(function(result) {
+      console.log("email : " + result);
+      response.success(result);
+  }, function(error) {
+      response.error('emailCheck error ' + error);
+  });
+});
+
+Parse.Cloud.define("emailCheck", function(request, response) {
+
+  var email = request.params.email;
+  var People = Parse.Object.extend("People");
+  var query = new Parse.Query(People);
+  query.equalTo("email", email);
+
+  var outcome = [];
+
+  query.find().then(function(results) {
+
+      var emailExists = false
+      var complete = false
+      if (results.length > 0) {
+          emailExists = true;
+          var person = results[0];
+          complete = person.get("isComplete");
+      }
+
+      outcome.push({
+        "isValid" : emailExists,
+        "isComplete" : complete
+      });
+
+      return outcome;
+
+  }).then(function(result) {
+      console.log("email : " + result);
+      response.success(result);
+  }, function(error) {
+      response.error('emailCheck error ' + error);
+  });
+});
+
+
 Parse.Cloud.define("getTagsAndIndustries", function(request, response) {
 
 //This returns a list of tags associated with the evaluator and a boolean for each of "Product", "Tech" and "Biz" categories
@@ -887,11 +1032,6 @@ Parse.Cloud.define("getTagsAndIndustries", function(request, response) {
           "tags" : tags
           });
       }
-
-      outcome.push({
-        "valid" : emailExists
-      });
-
 
       return outcome;
 
@@ -1011,7 +1151,7 @@ Parse.Cloud.define("getStartups", function(request, response) {
     "Name" : name,
     "Tagline" : tagline,
     "FitScore" : fitScore
-    });
+  });
 
   }).then(function(results){
 
