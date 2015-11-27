@@ -931,6 +931,8 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
   var email = request.params.email;
   var firstName = request.params.firstName;
   var lastName = request.params.lastName;
+  var jobTitle = request.params.jobTitle;
+  var basedIn = request.params.basedIn;
   var gender = request.params.gender;
 
   var skillProfile = request.params.skillProfile; //array
@@ -946,17 +948,20 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
   query.find().then(function(results) {
 
       if (results.length > 0) {
-          emailExists = true;
-          var person = results[0];
+        var person = results[0];
+        var complete = person.get("isComplete");
+        if(!complete){
           person.set("firstName", firstName);
           person.set("lastName", lastName);
+          person.set("jobTitle", jobTitle);
+          person.set("basedIn", basedIn);
           person.set("gender", gender);
           person.set("skillProfile", skillProfile);
           person.set("languages", languageArray);
           person.set("organisation", organisation);
           person.set("linkedIn", linkedIn);
           person.set("isComplete", true);
-
+        }
       }
 
       return person.save();
@@ -1173,7 +1178,8 @@ Parse.Cloud.define("submit", function(request, response) {
 
   var email = request.params.email;
   var industries = request.params.industry;
-  var tags = request.params.tags;
+  var tags = request.params.tags; //comma separated string
+  var tagsArray = separateTags(tags);
 
   var selected = request.params.selected;
   var expertise = request.params.expertise;
@@ -1196,12 +1202,21 @@ Parse.Cloud.define("submit", function(request, response) {
         console.log("indsutries: " + industries);
         industries = industries.concat(oldIndustries);
         evaluator.set("industries", industries);
+
+        var oldTags = evaluator.get("tags");
+        console.log("tags: " + tagsArray);
+        tagsArray = tagsArray.concat(oldTags);
+        evaluator.set("tags", tagsArray);
+
         evaluator.save();
       }
+      return evaluator.save();
 
-      var startupQuery = new Parse.Query(Startups);
-      startupQuery.containedIn("objectId", selected);
-      return startupQuery.find();
+  }).then(function(result){
+
+    var startupQuery = new Parse.Query(Startups);
+    startupQuery.containedIn("objectId", selected);
+    return startupQuery.find();
 
   }).then(function(results){
 
