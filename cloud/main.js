@@ -17,6 +17,8 @@ var separateTags = function(string) {
   } else if (string.indexOf("/") != -1){
     // console.log(" / symbol found");
     arr = string.split("/");
+  } else {
+    arr = [string];
   }
 
   return arr
@@ -669,54 +671,54 @@ if (industries == 0) {
 
 //FEEDBACK AND OPINION
 
-  if (numaPositive != null) {
-    person.set("positiveFeedback", numaPositive);
-  }
-
-  if (numaNegative != null) {
-    person.set("negativeFeedback", numaNegative);
-  }
+  // if (numaPositive != null) {
+  //   person.set("positiveFeedback", numaPositive);
+  // }
+  //
+  // if (numaNegative != null) {
+  //   person.set("negativeFeedback", numaNegative);
+  // }
 
 //PREFERRED FORMAT
 
-  if (oneToOne != null) {
-    person.add("preferredCollaboration", oneToOne);
-  }
-  if (expertSessions != null) {
-    person.add("preferredCollaboration", expertSessions);
-  }
-  if (personalStory != null) {
-    person.add("preferredCollaboration", personalStory);
-  }
-  if (workshop != null) {
-    person.add("preferredCollaboration", workshop);
-  }
-  if (officeHours != null) {
-    person.add("preferredCollaboration", officeHours);
-  }
-  if (roundTable != null) {
-    person.add("preferredCollaboration", roundTable);
-  }
-  if (expertTalk != null) {
-    person.add("preferredCollaboration", expertTalk);
-  }
-  if (startupReview != null) {
-    person.add("preferredCollaboration", startupReview);
-  }
-  if (otherHelp != null) {
-    person.add("preferredCollaboration", otherHelp);
-  }
+  // if (oneToOne != null) {
+  //   person.add("preferredCollaboration", oneToOne);
+  // }
+  // if (expertSessions != null) {
+  //   person.add("preferredCollaboration", expertSessions);
+  // }
+  // if (personalStory != null) {
+  //   person.add("preferredCollaboration", personalStory);
+  // }
+  // if (workshop != null) {
+  //   person.add("preferredCollaboration", workshop);
+  // }
+  // if (officeHours != null) {
+  //   person.add("preferredCollaboration", officeHours);
+  // }
+  // if (roundTable != null) {
+  //   person.add("preferredCollaboration", roundTable);
+  // }
+  // if (expertTalk != null) {
+  //   person.add("preferredCollaboration", expertTalk);
+  // }
+  // if (startupReview != null) {
+  //   person.add("preferredCollaboration", startupReview);
+  // }
+  // if (otherHelp != null) {
+  //   person.add("preferredCollaboration", otherHelp);
+  // }
 
 //AVAILABILITY SCALE 1-10 (1-Don't bother me, I'm a diva !, 10-I can be around several hours a week)
-  person.set("availabilty", available);
+  // person.set("availabilty", available);
 
 //OTHER
 
-  if(mentorExchange == 0) {
-    person.set("mentorExchange", false);
-  }else if (mentorExchange == 1) {
-    person.set("mentorExchange", true);
-  }
+  // if(mentorExchange == 0) {
+  //   person.set("mentorExchange", false);
+  // }else if (mentorExchange == 1) {
+  //   person.set("mentorExchange", true);
+  // }
 
   if(proudProject != null) {
     person.set("proudProject", proudProject);
@@ -774,11 +776,10 @@ Parse.Cloud.job("filterStartups", function(request, status) {
 
         function validitiyCheck() {
           // Return a promise that will be resolved when the save is finished.
-          var finalised = startup.get("dateFinalized");
-          if (finalised == null || finalised == " ") { //This startup is not finalised
+          var status = startup.get("status");
+          if (status == "In Progress" || status == "Rejected") { //This startup is in progress or rejected
             return startup.destroy();
           } else {
-
             var id = startup.get("applicationID");
             var secondQuery = new Parse.Query(Startups);
             secondQuery.equalTo("applicationID", id);
@@ -808,49 +809,44 @@ Parse.Cloud.job("filterStartups", function(request, status) {
 
 
 
-
-
-
-Parse.Cloud.job("makeTagsArrays", function(request, status) {
-
-  // Query for all upvotes
-  //NOT FINISHED
-  var Tags = Parse.Object.extend("Tags");
-  var tagQuery = new Parse.Query(Tags);
-  tagQuery.equalTo("name", "All Tags"); //the class only contains one object, called All Tags
-
-  var Startups = Parse.Object.extend("Startups");
-  var query = new Parse.Query(Startups);
-
-  var allTags =[]; //array with all tags (not unique)
-
-  query.each(function(startup) {
-
-      //Get tags from each startup and create array of tags
-      var tagsString = startup.get("tags");
-      var name = startup.get("name");
-      if(tagsString != null) {
-        var tagsArray = separateTags(tagsString);
-      } else {
-        var tagsArray = [];
-      }
-
-      tagsArray = tagsArray.filter(function(item, pos) {
-        return tagsArray.indexOf(item) == pos;
-      });
-      startup.set("tagsArray", tagsArray);
-      startup.save();
-
-  }).then(function() {
-      status.success("makeTagsArrays success");
-  }, function(error) {
-      status.error("makeTagsArrays something went wrong.");
-  });
-});
+// Parse.Cloud.job("makeTagsArrays", function(request, status) {
+//
+//   // Query for all upvotes
+//   //NOT FINISHED
+//   var Tags = Parse.Object.extend("Tags");
+//   var tagQuery = new Parse.Query(Tags);
+//   tagQuery.equalTo("name", "All Tags"); //the class only contains one object, called All Tags
+//
+//   var Startups = Parse.Object.extend("Startups");
+//   var query = new Parse.Query(Startups);
+//
+//   var allTags =[]; //array with all tags (not unique)
+//
+//   query.each(function(startup) {
+//
+//       //Get tags from each startup and create array of tags
+//       var tagsString = startup.get("tags");
+//       if(tagsString != null) {
+//         var tagsArray = separateTags(tagsString);
+//       } else {
+//         var tagsArray = [];
+//       }
+//
+//       tagsArray = tagsArray.filter(function(item, pos) {
+//         return tagsArray.indexOf(item) == pos;
+//       });
+//       startup.set("tagsArray", tagsArray);
+//       startup.save();
+//
+//   }).then(function() {
+//       status.success("makeTagsArrays success");
+//   }, function(error) {
+//       status.error("makeTagsArrays something went wrong.");
+//   });
+// });
 
 Parse.Cloud.job("getUniqueTags", function(request, status) {
 
-  // Query for all upvotes
   //NOT FINISHED
   var Tags = Parse.Object.extend("Tags");
   var tagQuery = new Parse.Query(Tags);
@@ -926,6 +922,30 @@ Parse.Cloud.beforeSave("People", function(request, response) {
 });
 
 
+Parse.Cloud.define("getTagsList", function(request, response) {
+
+    var Tags = Parse.Object.extend("Tags");
+    var query = new Parse.Query(Tags);
+    query.equalTo("name", "All Tags"); //the class only contains one object, called All Tags
+
+    query.first().then(function(result){
+
+      var outcome = [];
+      var allTags = result.get("tagsArray");
+      outcome.push({
+      "tags" : allTags
+      });
+
+      allTags.sort();
+
+      return allTags;
+    }).then(function(result) {
+        response.success(result);
+    }, function(error) {
+        response.error('getTagsList error ' + error);
+    });
+});
+
 Parse.Cloud.define("completeEvaluator", function(request, response) {
 
   var email = request.params.email;
@@ -938,6 +958,10 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
   var skillProfile = request.params.skillProfile; //array
   var languages = request.params.languages; //comma separated string
   var languageArray = separateTags(languages);
+  var proudProject = request.params.proudProject;
+
+  console.log(proudProject);
+
   var organisation = request.params.organisation;
   var linkedIn = request.params.linkedIn;
 
@@ -960,6 +984,7 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
           person.set("languages", languageArray);
           person.set("organisation", organisation);
           person.set("linkedIn", linkedIn);
+          person.set("proudProject", proudProject);
           person.set("isComplete", true);
         }
       }
@@ -1105,14 +1130,12 @@ Parse.Cloud.define("getStartups", function(request, response) {
 
   var evaluatorIndustry = request.params.industry;
   console.log("industry: " + evaluatorIndustry);
+  if(evaluatorIndustry == null){
+    evaluatorIndustry = [];
+  }
   var evaluatorTagsString = request.params.tags;
   var evaluatorTags = separateTags(evaluatorTagsString);
-  evaluatorTags = evaluatorTags.concat(evaluatorIndustry); //we're using the industries as just regular tags
-
-  //filter out the duplicates
-  // evaluatorTags = evaluatorTags.filter(function(item, pos) {
-  //   return evaluatorTags.indexOf(item) == pos;
-  // });
+  evaluatorTags = evaluatorTags.concat(evaluatorIndustry); //we're using the industries like regular tags
 
   evaluatorTags = removeDuplicates(evaluatorTags);
 
@@ -1132,9 +1155,6 @@ Parse.Cloud.define("getStartups", function(request, response) {
 
     if (!tagsArray){
       tagsArray = separateTags(startupTags);
-      // tagsArray = tagsArray.filter(function(item, pos) {
-      //   return tagsArray.indexOf(item) == pos;
-      // });
       tagsArray = removeDuplicates(tagsArray);
       startup.set("tagsArray", tagsArray);
       startup.save();
@@ -1144,12 +1164,7 @@ Parse.Cloud.define("getStartups", function(request, response) {
       tagsArray = [];
     }
 
-    //var startupTags = separateTags(startupTags); //startupTags is a comma separated string of tags, need to be converted to an array first
     var fitScore = getFitScore(tagsArray, evaluatorTags);
-
-    // if(startupTags == null) {
-    //   startupTags = "placeholder";
-    // }
 
     startups.push({
     "Id" : id,
@@ -1158,7 +1173,7 @@ Parse.Cloud.define("getStartups", function(request, response) {
     "FitScore" : fitScore
   });
 
-  }).then(function(results){
+  }).then(function(){
 
     startups = startups.sort(compareScores);
     response.success(startups);
@@ -1181,7 +1196,7 @@ Parse.Cloud.define("submit", function(request, response) {
   var tags = request.params.tags; //comma separated string
   var tagsArray = separateTags(tags);
 
-  var selected = request.params.selected;
+  var selected = request.params.selected; //selected startups
   var expertise = request.params.expertise;
   var allNames = []; //where we store the names of all startups assigned to evaluator
   var evaluator;
@@ -1197,18 +1212,11 @@ Parse.Cloud.define("submit", function(request, response) {
       if ( results.length == 0 ) {
         console.error("no such evaluator");
       } else if (results.length > 0) {
+
+        //replace old industries and tags with the new
         evaluator = results[0];
-        var oldIndustries = evaluator.get("industries");
-        console.log("indsutries: " + industries);
-        industries = industries.concat(oldIndustries);
         evaluator.set("industries", industries);
-
-        var oldTags = evaluator.get("tags");
-        console.log("tags: " + tagsArray);
-        tagsArray = tagsArray.concat(oldTags);
         evaluator.set("tags", tagsArray);
-
-        evaluator.save();
       }
       return evaluator.save();
 
@@ -1224,7 +1232,7 @@ Parse.Cloud.define("submit", function(request, response) {
       var startup = results[i];
       var id = startup.id;
       name = startup.get("name");
-      startup.set(expertise, evaluator);  //pointer
+      startup.set(expertise, evaluator);  //parse pointer
       startup.save();
       allNames.push(name);
     }
@@ -1235,10 +1243,10 @@ Parse.Cloud.define("submit", function(request, response) {
       //Create new assignment
       var Assignments = Parse.Object.extend("Assignments");
       var assignment = new Assignments();
-      assignment.set("evaluator", evaluator); //pointer
+      assignment.set("evaluator", evaluator); //parse pointer
       assignment.set("startupNames", allNames); //array
       assignment.set("email", email); //string
-      assignment.set("expertise", expertise); //pointer
+      assignment.set("expertise", expertise); //parse pointer
       assignment.set("assigned", false);
 
     return assignment.save();
