@@ -1,0 +1,22 @@
+{
+  "global": {
+    "parseVersion": "1.5.0"
+  },
+  "applications": {
+    "NUMA-Development": {
+      "applicationId": "tc0lOegIRjxSNAymOwXUrTBiNgeDRxcNGAAfJndb",
+      "masterKey": "uWKE1dNRXBpbLLGzyoUt6INKaFej0GzOlqpSFq61"
+    },
+    "NUMA": {
+      "applicationId": "XYVa8aop9gJj7A7GC4Rl5KELXIJCOD2dceWu1QhP",
+      "masterKey": "hMaVrHtAn7YZB0Gmtvr0xKxj5DPILRlNRUHqaIQG"
+    },
+    "_default": {
+      "link": "NUMA-Development"
+    },
+
+    "product": {
+      "link": "NUMA"
+    }
+  }
+}

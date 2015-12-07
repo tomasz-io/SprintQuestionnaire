@@ -1,7 +1,10 @@
 
 // Use Parse.Cloud.define to define as many cloud functions as you want.
 // For example:
+
+//test
 var moment = require('moment');
+
 var _ = require('underscore');
 
 var separateTags = function(string) {
@@ -783,12 +786,16 @@ Parse.Cloud.job("filterStartups", function(request, status) {
             var id = startup.get("applicationID");
             var secondQuery = new Parse.Query(Startups);
             secondQuery.equalTo("applicationID", id);
-            console.log("duplicate query " + id);
+
+            var isAssigned = (startup.get("biz")!= null || startup.get("product") != null || startup.get("tech") != null);
+            var startupName = startup.get("name");
+            console.log("Startup: " + startupName + " isAssigned: " + isAssigned);
 
             return secondQuery.count().then(function(count) {
-                if (count > 1) { //This startup is a duplicate
+                if (count > 1 && !isAssigned) { //This startup is a duplicate
                   console.log("to be destroyed");
-                  return startup.destroy();
+                  return startup.save();
+                  //return startup.destroy();
                 } else {
                   console.log("do not destroy");
                   return startup.save();
@@ -1185,6 +1192,50 @@ Parse.Cloud.define("getStartups", function(request, response) {
 
 });
 
+Parse.Cloud.job("fixAssignments", function(request, status) {
+
+  var Assignments = Parse.Object.extend("Assignments");
+  var Startups = Parse.Object.extend("Startups");
+  var query = new Parse.Query(Assignments);
+  var expertise;
+  var evaluator;
+
+
+  query.find().then(function(results) {
+
+      var assignment = results[1];
+      var startupNames = assignment.get("startupNames");
+      expertise = assignment.get("expertise");
+      evaluator = assignment.get("evaluator");
+      console.log(expertise);
+      console.log(startupNames);
+
+      var startupQuery = new Parse.Query(Startups);
+      startupQuery.containedIn("name", startupNames);
+      return startupQuery.find();
+
+  }).then(function(results){
+
+    var allStartups = Array();
+
+    for(var i=0, len=results.length; i < len; i++){
+      var startup = results[i];
+      var id = startup.id;
+      name = startup.get("name");
+      startup.set(expertise, evaluator);  //parse pointer
+      allStartups.push(startup);
+    }
+    console.log("all startups : " + allStartups);
+    return Parse.Object.saveAll(allStartups);
+  })
+
+  .then(function() {
+      status.success("fixAssignments success");
+  }, function(error) {
+      status.error("fixAssignments something went wrong." + error.code + ": " + error.message);
+  });
+});
+
 
 Parse.Cloud.define("submit", function(request, response) {
 
@@ -1228,14 +1279,21 @@ Parse.Cloud.define("submit", function(request, response) {
 
   }).then(function(results){
 
+    var allStartups = Array();
+
     for(var i=0, len=results.length; i < len; i++){
       var startup = results[i];
       var id = startup.id;
       name = startup.get("name");
       startup.set(expertise, evaluator);  //parse pointer
-      startup.save();
+      allStartups.push(startup);
+      // startup.save();
       allNames.push(name);
     }
+
+    console.log("all startups : " + allStartups);
+
+    return Parse.Object.saveAll(allStartups);
 
   }).then(function(){
 
@@ -1253,7 +1311,7 @@ Parse.Cloud.define("submit", function(request, response) {
   }).then(function(result) {
       response.success("submit success");
   }, function(error) {
-      response.error("submit something went wrong.");
+      response.error("submit something went wrong." + error.code + ": " + error.message);
   });
 
 });
