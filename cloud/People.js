@@ -2,7 +2,7 @@ var utilities = require('cloud/utilityFunctions.js');
 
 Parse.Cloud.beforeSave("People", function(request, response) {
 
-    console.log('accessed beforeSave People');
+    //console.log('accessed beforeSave People');
 
 //REMOVE DUPLICATES & MAKE TAGS ARRAY
     arrayNames = ["tags", "languages", "industries", "skillProfile"];
@@ -10,7 +10,7 @@ Parse.Cloud.beforeSave("People", function(request, response) {
     for (var i = 0; i < arrayNames.length; i++) {
       var name = arrayNames[i];
       var array = request.object.get(name);
-      console.log("array: " + array);
+    //  console.log("array: " + array);
       if (array != null) {
         array = utilities.removeDuplicates(array);
         request.object.set(name, array);
@@ -20,8 +20,8 @@ Parse.Cloud.beforeSave("People", function(request, response) {
 
     if(allTags){
       allTags = utilities.removeDuplicates(allTags);
-      console.log(request.object.get("lastName"));
-      console.log(allTags);
+      //console.log(request.object.get("lastName"));
+      //console.log(allTags);
       request.object.set("tags", allTags);
     }
 

@@ -1,5 +1,5 @@
 var _ = require('underscore');
-
+var utilities = require('cloud/utilityFunctions.js');
 
 Parse.Cloud.job("standardisePeople", function(request, status) {
 
@@ -32,6 +32,107 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
       status.error("standardisePeople something went wrong.");
   });
 });
+
+
+
+Parse.Cloud.job("deleteDuplicates", function(request, status) {
+
+    console.log('accessed deleteDuplicates');
+    var People = Parse.Object.extend("People");
+    var query = new Parse.Query(People);
+    query.limit(1000); //normally it's capped on 100
+
+
+    var promise = Parse.Promise.as();
+    query.find().then(function(results) {
+      var promise = Parse.Promise.as();
+      _.each(results, function(person) {
+        promise = promise.then(findDuplicates);
+
+        function findDuplicates() {
+            // Return a promise that will be resolved when the save is finished.
+
+            var duplicateQuery = new Parse.Query(People);
+            var email = person.get("email");
+            duplicateQuery.equalTo("email", email);
+
+            return duplicateQuery.count().then(function(count) {
+                if (count > 1) { //This person is a duplicate
+                  console.log("to be destroyed");
+                  return person.destroy();
+                  //return startup.destroy();
+                } else {
+                  console.log("do not destroy");
+                  return person.save();
+                }
+            });
+          }
+      });
+
+      return promise;
+
+    }).then(function() {
+        status.success("importEvaluators success");
+    }, function(error) {
+        status.error("importEvaluators error : " + error.message);
+    });
+
+});
+
+
+Parse.Cloud.job("importEvaluators", function(request, status) {
+
+    console.log('accessed importEvaluators');
+    var Evaluators = Parse.Object.extend("Evaluators");
+    var query = new Parse.Query(Evaluators);
+    query.limit(1000); //normally it's capped on 100
+
+
+    var promise = Parse.Promise.as();
+    query.find().then(function(results) {
+      var promise = Parse.Promise.as();
+      _.each(results, function(evaluator) {
+        promise = promise.then(createEvaluator);
+
+        function createEvaluator() {
+            // Return a promise that will be resolved when the save is finished.
+
+            var People = Parse.Object.extend("People");
+            var peopleQuery = new Parse.Query(People);
+            var email = evaluator.get("email");
+            peopleQuery.equalTo("email", email);
+
+            return peopleQuery.find().then(function(results) {
+
+                var person;
+                if (results.length == 1) { //This person exists in db
+                  console.log("evaluator exists");
+                  person = results[0];
+                } else if (results.length == 0) { //need to create new person
+                  person = new People();
+                  person.set("email", email);
+                } else {
+                  console.log("duplicates : " + results.length);
+                //  console.log("will delete duplicate : " + email);
+                  //var duplicate = results[0];
+                  //return duplicate.destroy();
+                }
+                person.set("canEvaluate", true);
+                return person.save();
+            });
+          }
+      });
+
+      return promise;
+
+    }).then(function() {
+        status.success("importEvaluators success");
+    }, function(error) {
+        status.error("importEvaluators error : " + error.message);
+    });
+
+});
+
 
 Parse.Cloud.job("filterStartups", function(request, status) {
 
@@ -106,7 +207,7 @@ Parse.Cloud.job("getUniqueTags", function(request, status) {
       //Get tags from each startup and create array of tags
       var tagsString = startup.get("tags");
       if(tagsString != null) {
-        var tags = separateTags(tagsString);
+        var tags = utilities.separateTags(tagsString);
       } else {
         var tags = [];
       }

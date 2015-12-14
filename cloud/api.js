@@ -76,7 +76,7 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
       console.log("email : " + result);
       response.success(result);
   }, function(error) {
-      response.error('emailCheck error ' + error);
+      response.error('completeEvaluator error ' + error);
   });
 });
 
@@ -91,16 +91,18 @@ Parse.Cloud.define("emailCheck", function(request, response) {
 
   query.find().then(function(results) {
 
-      var emailExists = false
+      var isValid = false
       var complete = false
       if (results.length > 0) {
-          emailExists = true;
           var person = results[0];
           complete = person.get("isComplete");
+          if(person.get("canEvaluate") == true) {
+            isValid = true;
+          }
       }
 
       outcome.push({
-        "isValid" : emailExists,
+        "isValid" : isValid,
         "isComplete" : complete
       });
 
