@@ -33,6 +33,38 @@ Parse.Cloud.job("standardisePeople", function(request, status) {
   });
 });
 
+Parse.Cloud.job("lowercaseEmail", function(request, status) {
+
+
+  //This job was used to adapt the data from an excel sheet with all contacts.
+  //For more details, refer to function 'standardisePerson'
+
+  var People = Parse.Object.extend("People");
+  var query = new Parse.Query(People);
+  query.limit(1000); //normally it's capped on 100
+
+  var promise = Parse.Promise.as();
+  query.find().then(function(results) {
+    // Create a trivial resolved promise as a base case.
+    console.log(results.length);
+    var promise = Parse.Promise.as();
+    _.each(results, function(person) {
+      // For each item, extend the promise with a function to save it.
+      promise = promise.then(function() {
+        // Return a promise that will be resolved when the save is finished.
+        var lowercaseEmail = person.get("email").trim().toLowerCase();
+        person.set("email", lowercaseEmail);
+        return person.save();
+      });
+    });
+    return promise;
+
+  }).then(function() {
+      status.success("standardisePeople success");
+  }, function(error) {
+      status.error("standardisePeople something went wrong.");
+  });
+});
 
 
 Parse.Cloud.job("deleteDuplicates", function(request, status) {
@@ -99,7 +131,7 @@ Parse.Cloud.job("importEvaluators", function(request, status) {
 
             var People = Parse.Object.extend("People");
             var peopleQuery = new Parse.Query(People);
-            var email = evaluator.get("email");
+            var email = evaluator.get("email").trim().toLowerCase();
             peopleQuery.equalTo("email", email);
 
             return peopleQuery.find().then(function(results) {
@@ -110,7 +142,7 @@ Parse.Cloud.job("importEvaluators", function(request, status) {
                   person = results[0];
                 } else if (results.length == 0) { //need to create new person
                   person = new People();
-                  person.set("email", email);
+                  person.set("email", email.trim().toLowerCase());
                 } else {
                   console.log("duplicates : " + results.length);
                 //  console.log("will delete duplicate : " + email);

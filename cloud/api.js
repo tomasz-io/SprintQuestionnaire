@@ -48,7 +48,7 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
 
   var People = Parse.Object.extend("People");
   var query = new Parse.Query(People);
-  query.equalTo("email", email);
+  query.equalTo("email", email.trim().toLowerCase());
 
   query.find().then(function(results) {
 
@@ -85,7 +85,7 @@ Parse.Cloud.define("emailCheck", function(request, response) {
   var email = request.params.email;
   var People = Parse.Object.extend("People");
   var query = new Parse.Query(People);
-  query.equalTo("email", email);
+  query.equalTo("email", email.trim().toLowerCase());
 
   var outcome = [];
 
@@ -124,7 +124,7 @@ Parse.Cloud.define("getTagsAndIndustries", function(request, response) {
   var email = request.params.email;
   var People = Parse.Object.extend("People");
   var query = new Parse.Query(People);
-  query.equalTo("email", email);
+  query.equalTo("email", email.trim().toLowerCase());
 
   var outcome = [];
 
@@ -195,7 +195,7 @@ Parse.Cloud.define("getAssignments", function(request, response) {
 
   }).then(function(results){
     console.log("assignments : " + arr);
-    arr = arr.sort(compareDates);
+    arr = arr.sort(utilities.compareDates);
     response.success(arr);
   }, function(error) {
     response.error(error.code + " : " + error.message);
@@ -273,7 +273,7 @@ Parse.Cloud.define("submit", function(request, response) {
   var Startups = Parse.Object.extend("Startups");
   var People = Parse.Object.extend("People");
 
-  var email = request.params.email;
+  var email = request.params.email.trim().toLowerCase();
   var industries = request.params.industry;
   var tags = request.params.tags; //comma separated string
   var tagsArray = utilities.separateTags(tags);
