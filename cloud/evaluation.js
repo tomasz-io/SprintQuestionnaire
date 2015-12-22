@@ -32,24 +32,40 @@ Parse.Cloud.job("importScores", function(request, status) {
 
       name = eval.get("Name");
       for(var j=0, len=results.length; j < len; j++){
-        var teamrating = eval.get("Evaluator" + j + "Teamrating");
-        var customerKnowledge = eval.get("Evaluator" + j + "CustomerKnowledgerating");
-        var opportunityMarket = eval.get("Evaluator" + j + "OpportunityMarketrating");
-        var industryExperience = eval.get("Evaluator" + j + "IndustryExperiencerating");
-        var competAdvantage = eval.get("Evaluator" + j + "CompetAdvantagerating");
+        var teamrating = parseInt(eval.get("Evaluator" + j + "Teamrating"));
+        var customerKnowledge = parseInt(eval.get("Evaluator" + j + "CustomerKnowledgerating"));
+        var opportunityMarket = parseInt(eval.get("Evaluator" + j + "OpportunityMarketrating"));
+        var industryExperience = parseInt(eval.get("Evaluator" + j + "IndustryExperiencerating"));
+        var competAdvantage = parseInt(eval.get("Evaluator" + j + "CompetAdvantagerating"));
 
-        if (eval.get("Evaluator" + j + "Teamrating") != "-" && eval.get("Evaluator" + j + "Teamrating") != null) {
-          console.log(name + " team rating : " + teamrating);
-          console.log(name + " customer knowledge : " + customerKnowledge);
-          console.log(name + " market opportunity : " + opportunityMarket);
-          console.log(name + " industry experience : " + industryExperience);
-          console.log(name + " competitive advantage : " + competAdvantage);
-          allTeam.push(teamrating);
-          allCustomer.push(customerKnowledge);
-          allMarket.push(opportunityMarket);
-          allIndustry.push(industryExperience);
-          allAdvantage.push(competAdvantage);
+        if (teamrating) {
+          allTeam.push(parseInt(teamrating));
         }
+        if (customerKnowledge) {
+          allCustomer.push(parseInt(customerKnowledge));
+        }
+        if (industryExperience) {
+          allIndustry.push(parseInt(industryExperience));
+        }
+        if (opportunityMarket) {
+          allMarket.push(parseInt(opportunityMarket));
+        }
+        if (competAdvantage) {
+          allAdvantage.push(parseInt(competAdvantage));
+        }
+
+        // if(name == "MySprezz") {
+        //   if (teamrating) {
+        //     allTeam.push(parseInt(teamrating));
+        //   }
+        //
+        // }
+        // console.log(name + " team rating : " + teamrating);
+        // console.log(name + " customer knowledge : " + customerKnowledge);
+        // console.log(name + " market opportunity : " + opportunityMarket);
+        // console.log(name + " industry experience : " + industryExperience);
+        // console.log(name + " competitive advantage : " + competAdvantage);
+
       }
       eval.set("AllTeam", allTeam);
       eval.set("AllCustomer", allCustomer);
