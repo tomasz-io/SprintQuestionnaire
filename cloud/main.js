@@ -5,3 +5,4 @@
 require('cloud/People.js');
 require('cloud/jobs.js');
 require('cloud/api.js');
+require('cloud/evaluation.js');

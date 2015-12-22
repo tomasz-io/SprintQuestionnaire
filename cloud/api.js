@@ -39,9 +39,7 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
   var skillProfile = request.params.skillProfile; //array
   var languages = request.params.languages; //comma separated string
   var languageArray = utilities.separateTags(languages);
-  var proudProject = request.params.proudProject;
 
-  console.log(proudProject);
 
   var organisation = request.params.organisation;
   var linkedIn = request.params.linkedIn;
@@ -65,7 +63,6 @@ Parse.Cloud.define("completeEvaluator", function(request, response) {
           person.set("languages", languageArray);
           person.set("organisation", organisation);
           person.set("linkedIn", linkedIn);
-          person.set("proudProject", proudProject);
           person.set("isComplete", true);
         }
       }

@@ -87,6 +87,7 @@ Parse.Cloud.job("deleteDuplicates", function(request, status) {
             var duplicateQuery = new Parse.Query(People);
             var email = person.get("email");
             duplicateQuery.equalTo("email", email);
+            duplicateQuery.limit(1000);
 
             return duplicateQuery.count().then(function(count) {
                 if (count > 1) { //This person is a duplicate
@@ -133,18 +134,25 @@ Parse.Cloud.job("importEvaluators", function(request, status) {
             var peopleQuery = new Parse.Query(People);
             var email = evaluator.get("email").trim().toLowerCase();
             peopleQuery.equalTo("email", email);
+            query.limit(1000);
 
             return peopleQuery.find().then(function(results) {
 
                 var person;
                 if (results.length == 1) { //This person exists in db
-                  console.log("evaluator exists");
                   person = results[0];
                 } else if (results.length == 0) { //need to create new person
+                  console.log("evaluator doesn't exist");
                   person = new People();
                   person.set("email", email.trim().toLowerCase());
                 } else {
+                  //IMPORTANT - this function breaks if there is a duplicate. That's done on purpose.
+                  //If the function doesn't seem to work, run 'deleteDuplicates'
+
                   console.log("duplicates : " + results.length);
+                  var duplicate = results[0];
+                  console.log("duplicate email: " + duplicate.get("email"));
+
                 //  console.log("will delete duplicate : " + email);
                   //var duplicate = results[0];
                   //return duplicate.destroy();
@@ -186,6 +194,7 @@ Parse.Cloud.job("filterStartups", function(request, status) {
           // Return a promise that will be resolved when the save is finished.
           var status = startup.get("status");
           if (status == "In Progress" || status == "Rejected") { //This startup is in progress or rejected
+            console.log("to be destroyed, status: " + status);
             return startup.destroy();
           } else {
             var id = startup.get("applicationID");
@@ -194,7 +203,7 @@ Parse.Cloud.job("filterStartups", function(request, status) {
 
             var isAssigned = (startup.get("biz")!= null || startup.get("product") != null || startup.get("tech") != null);
             var startupName = startup.get("name");
-            console.log("Startup: " + startupName + " isAssigned: " + isAssigned);
+            //console.log("Startup: " + startupName + " isAssigned: " + isAssigned);
 
             return secondQuery.count().then(function(count) {
                 if (count > 1 && !isAssigned) { //This startup is a duplicate
@@ -202,7 +211,7 @@ Parse.Cloud.job("filterStartups", function(request, status) {
                   return startup.destroy();
                   //return startup.destroy();
                 } else {
-                  console.log("do not destroy");
+                //  console.log("do not destroy");
                   return startup.save();
                 }
             });
