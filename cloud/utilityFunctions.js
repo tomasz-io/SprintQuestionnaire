@@ -81,6 +81,20 @@ module.exports = {
     }
     var avg = total / arr.length;
     return avg;
+  },
+
+  getWeightedAverage: function(weights, values) {
+
+    if (weights.length != values.length) {
+      console.log("getWeightedAverage : weights and values array are of different lengths");
+    } else {
+      var avg = 0;
+      for (var i=0, len = weights.length; i < len; i++) {
+      //  console.log("value : " + values[i] + " weight : " + weights[i]);
+        avg += weights[i]*values[i];
+      }
+      return avg;
+    }
   }
 
 }
